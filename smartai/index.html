@@ -53,10 +53,15 @@
    const SUPABASE_ANON_KEY = "sb_publishable_sAIf6M6qRqQrO4YZqhgIbg_pKOuZh-6";
     const FUNCTION_URL = SUPABASE_URL + "/functions/v1/smartai";
 
-    const form = document.getElementById("form");
-    const input = document.getElementById("message");
-    const send = document.getElementById("send");
-    const chat = document.getElementById("chat");
+   const form = document.getElementById("form");
+const input = document.getElementById("message");
+const send = document.getElementById("send");
+
+send.addEventListener("click", () => {
+  alert("Hej! SmartAI-knappen fungerar!");
+});
+
+const chat = document.getElementById("chat");
 
     function addMessage(text, role) {
       document.getElementById("welcome")?.remove();
