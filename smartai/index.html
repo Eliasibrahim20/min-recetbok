@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="sv">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#090d1a">
+  <title>SmartAI – Din AI-assistent</title>
+  <style>
+    :root { color-scheme: dark; font-family: Inter, system-ui, Arial, sans-serif; }
+    * { box-sizing: border-box; }
+    body { margin: 0; min-height: 100vh; background: #090d1a; color: #f4f6ff; }
+    .app { min-height: 100vh; display: flex; flex-direction: column; max-width: 920px; margin: auto; padding: 24px; }
+    header { display:flex; align-items:center; gap:12px; padding: 10px 0 22px; border-bottom:1px solid #252c42; }
+    .logo { width:42px; height:42px; display:grid; place-items:center; border-radius:14px; background:linear-gradient(135deg,#4778ff,#9a59ed); font-size:22px; }
+    h1 { font-size:20px; margin:0; } .sub { color:#9ba6c3; font-size:13px; margin-top:3px; }
+    #chat { flex:1; padding:28px 0; display:flex; flex-direction:column; gap:16px; }
+    .welcome { text-align:center; margin:auto; max-width:560px; padding:30px 10px; }
+    .welcome h2 { font-size: clamp(26px,5vw,38px); margin:0 0 12px; }
+    .welcome p { color:#aab4cf; line-height:1.6; }
+    .msg { max-width:82%; padding:14px 17px; border-radius:17px; line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere; }
+    .user { align-self:flex-end; background:#344d9b; border-bottom-right-radius:5px; }
+    .assistant { align-self:flex-start; background:#171f34; border:1px solid #29334d; border-bottom-left-radius:5px; }
+    form { display:flex; gap:10px; padding:12px; background:#151c2e; border:1px solid #303a56; border-radius:18px; }
+    textarea { flex:1; resize:vertical; min-height:48px; max-height:150px; border:0; outline:0; color:#fff; background:transparent; font:inherit; padding:12px 8px; }
+    button { border:0; border-radius:13px; background:#617cf6; color:white; font-weight:700; padding:0 20px; cursor:pointer; }
+    button:disabled { opacity:.55; cursor:wait; }
+    .hint { color:#7f8ba9; font-size:12px; text-align:center; padding:10px; }
+    @media(max-width:600px) { .app{padding:14px}.msg{max-width:94%} form{gap:5px;padding:8px} button{padding:0 14px} }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div class="logo">✦</div>
+      <div><h1>SmartAI</h1><div class="sub">Din personliga AI-assistent</div></div>
+    </header>
+    <section id="chat" aria-live="polite">
+      <div class="welcome" id="welcome">
+        <h2>Vad kan jag hjälpa dig med?</h2>
+        <p>Ställ en fråga, be om en förklaring eller få hjälp att komma igång med en idé.</p>
+      </div>
+    </section>
+    <form id="form">
+      <textarea id="message" placeholder="Skriv ett meddelande till SmartAI..." rows="1" required></textarea>
+      <button id="send" type="submit">Skicka</button>
+    </form>
+    <div class="hint">SmartAI kan göra misstag. Kontrollera viktig information.</div>
+  </main>
+  <script>
+    // Supabase-projektets offentliga URL och anon/publishable key.
+    // Lägg aldrig in OpenAI-nyckeln här.
+    const SUPABASE_URL = "https://dgkjfffoutoalwisqyoz.supabase.co";
+    const SUPABASE_ANON_KEY = "KLIStra_IN_SUPABASE_ANON_KEY_HÄR";
+    const FUNCTION_URL = SUPABASE_URL + "/functions/v1/smartai";
+
+    const form = document.getElementById("form");
+    const input = document.getElementById("message");
+    const send = document.getElementById("send");
+    const chat = document.getElementById("chat");
+
+    function addMessage(text, role) {
+      document.getElementById("welcome")?.remove();
+      const item = document.createElement("div");
+      item.className = "msg " + role;
+      item.textContent = text;
+      chat.appendChild(item);
+      item.scrollIntoView({ behavior: "smooth", block: "end" });
+      return item;
+    }
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+      const message = input.value.trim();
+      if (!message || send.disabled) return;
+      if (SUPABASE_ANON_KEY.startsWith("KLIStra_")) {
+        addMessage("Webbplatsen behöver först få Supabase anon/publishable key. Lägg in den i koden enligt instruktionen.", "assistant");
+        return;
+      }
+
+      addMessage(message, "user");
+      input.value = "";
+      send.disabled = true;
+      send.textContent = "Väntar…";
+      const waiting = addMessage("SmartAI skriver…", "assistant");
+
+      try {
+        const response = await fetch(FUNCTION_URL, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "apikey": SUPABASE_ANON_KEY,
+            "Authorization": "Bearer " + SUPABASE_ANON_KEY
+          },
+          body: JSON.stringify({ message })
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || "Serverfel (" + response.status + ")");
+        waiting.textContent = data.reply || "SmartAI skickade inget svar.";
+      } catch (error) {
+        waiting.textContent = "Kunde inte nå SmartAI: " + error.message;
+      } finally {
+        send.disabled = false;
+        send.textContent = "Skicka";
+        input.focus();
+      }
+    });
+  </script>
+</body>
+</html>
