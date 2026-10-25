@@ -68,7 +68,7 @@
   <main class="main">
     <div class="topbar">
       <button class="menu" id="menu" aria-label="Öppna meny">☰</button>
-      <div class="mobile-brand">SmartAI</div>
+      <div class="mobile-brand">SmartAI</div><div class="account-actions"><span class="account-email" id="accountEmail"></span><button id="logoutBtn" class="hidden" type="button">Logga ut</button></div>
     </div>
     <section id="chat" aria-live="polite">
       <div class="welcome" id="welcome">
@@ -94,9 +94,13 @@
     </div>
   </main>
 </div>
+<div class="auth-screen" id="authScreen"><div class="auth-card"><h1>Välkommen till SmartAI</h1><p>Skapa ett konto eller logga in för att spara dina chattar.</p><input id="authEmail" type="email" autocomplete="email" placeholder="E-post"><input id="authPassword" type="password" autocomplete="current-password" placeholder="Lösenord"><div class="auth-error" id="authError"></div><button id="loginBtn" type="button">Logga in</button><button id="signupBtn" class="secondary" type="button">Skapa konto</button></div></div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+  const SUPABASE_URL = "https://dgkjfffoutoalwisqyoz.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_sAIf6M6qRqQrO4YZqhgIbg_pKOuZh-6";
-  const FUNCTION_URL = "https://dgkjfffoutoalwisqyoz.supabase.co/functions/v1/hyper-responder";\n  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);\n  let currentUser = null;
+  const FUNCTION_URL = "https://dgkjfffoutoalwisqyoz.supabase.co/functions/v1/hyper-responder";
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);\n  let currentUser = null;
   const chat = document.getElementById("chat");
   const form = document.getElementById("form");
   const input = document.getElementById("message");
@@ -298,6 +302,42 @@
     } finally {
       send.disabled = false; input.focus();
     }
+  });
+  const authScreen = document.getElementById("authScreen");
+  const authError = document.getElementById("authError");
+  const authEmail = document.getElementById("authEmail");
+  const authPassword = document.getElementById("authPassword");
+  async function enterAccount(user) {
+    currentUser = user;
+    document.getElementById("accountEmail").textContent = user.email || "";
+    document.getElementById("logoutBtn").classList.remove("hidden");
+    authScreen.classList.add("hidden");
+    try { await loadChatsFromAccount(); renderChat(); }
+    catch (e) { authError.textContent = "Kunde inte läsa chattar: " + e.message; }
+  }
+  document.getElementById("loginBtn").addEventListener("click", async () => {
+    authError.textContent = "";
+    const { data, error } = await db.auth.signInWithPassword({ email: authEmail.value.trim(), password: authPassword.value });
+    if (error) { authError.textContent = error.message; return; }
+    await enterAccount(data.user);
+  });
+  document.getElementById("signupBtn").addEventListener("click", async () => {
+    authError.textContent = "";
+    const { data, error } = await db.auth.signUp({ email: authEmail.value.trim(), password: authPassword.value, options: { emailRedirectTo: location.href.split("?")[0] } });
+    if (error) { authError.textContent = error.message; return; }
+    if (data.session) await enterAccount(data.user);
+    else authError.textContent = "Kontot är skapat. Bekräfta e-posten och logga sedan in.";
+  });
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await db.auth.signOut();
+    currentUser = null; conversations = []; messages = []; activeId = null;
+    document.getElementById("accountEmail").textContent = "";
+    document.getElementById("logoutBtn").classList.add("hidden");
+    authScreen.classList.remove("hidden"); renderHistory(); renderChat();
+  });
+  db.auth.getSession().then(({ data, error }) => {
+    if (error) authError.textContent = error.message;
+    if (data.session?.user) enterAccount(data.session.user);
   });
   renderHistory();
   renderChat();
