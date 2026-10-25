@@ -103,6 +103,22 @@ textarea::placeholder{color:#999}
 .auth-card button{background:#eee;color:#171717}
 .auth-card .secondary{background:#3a3a3a;color:#eee;border-color:#555}
 @media(max-width:700px){.sidebar{background:#171717}.topbar{padding:0 14px}#chat{padding:24px 16px 12px}.composer-wrap{padding:10px 12px 18px}}
+
+/* NOVA AI: extra verktyg och tydligare gränssnitt */
+.chat-search{width:100%;padding:11px 12px;border:1px solid #3d3d3d;border-radius:10px;background:#222;color:#eee;outline:none}
+.chat-search:focus{border-color:#999}.history-row{display:flex;align-items:center;gap:4px;border-radius:9px;padding:2px}
+.history-row.active{background:#303030}.history-row .history-item{flex:1;min-width:0}
+.history-tools{display:flex;gap:2px;opacity:.55}.history-row:hover .history-tools,.history-row:focus-within .history-tools{opacity:1}
+.history-tools button{border:0;background:transparent;color:#bbb;padding:6px;border-radius:6px;font-size:13px}
+.history-tools button:hover{background:#454545;color:white}
+.history-empty{color:#888;font-size:12px;padding:10px}
+#chat{scroll-behavior:smooth}
+.message-body{overflow-wrap:anywhere}
+.composer-wrap{position:sticky;bottom:0;background:linear-gradient(180deg,transparent,#212121 18%)}
+.auth-card{backdrop-filter:blur(16px)}
+button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #aaa;outline-offset:2px}
+@media(max-width:700px){.history-tools{opacity:1}.chat-search{font-size:16px}}
+
 </style>
 </head>
 <body>
@@ -110,6 +126,7 @@ textarea::placeholder{color:#999}
   <aside class="sidebar" id="sidebar">
     <div class="brand"><span class="brand-mark">✦</span> NOVA AI</div>
     <button class="new-chat" id="newChat">＋　Ny chatt</button>
+    <input id="chatSearch" class="chat-search" type="search" placeholder="Sök bland chattar..." aria-label="Sök bland chattar">
     <div class="history-title">Tidigare chattar</div>
     <div class="history" id="history"></div>
     <div class="side-note">NOVA AI kan göra misstag. Kontrollera viktig information.</div>
@@ -188,14 +205,60 @@ textarea::placeholder{color:#999}
     if (error) console.error("Kunde inte spara chatten:", error);
   }
   function renderHistory() {
+    const query = (document.getElementById("chatSearch")?.value || "").trim().toLowerCase();
     historyEl.innerHTML = "";
-    conversations.slice().reverse().forEach(c => {
+    const visible = conversations.slice().reverse().filter(c => (c.title || "Ny chatt").toLowerCase().includes(query));
+    if (!visible.length) {
+      const empty = document.createElement("div");
+      empty.className = "history-empty";
+      empty.textContent = query ? "Inga chattar hittades." : "Dina sparade chattar visas här.";
+      historyEl.appendChild(empty);
+      return;
+    }
+    visible.forEach(c => {
+      const row = document.createElement("div");
+      row.className = "history-row" + (c.id === activeId ? " active" : "");
       const b = document.createElement("button");
       b.className = "history-item";
       b.textContent = c.title || "Ny chatt";
+      b.title = c.title || "Ny chatt";
       b.onclick = () => loadChat(c.id);
-      historyEl.appendChild(b);
+      const tools = document.createElement("div");
+      tools.className = "history-tools";
+      const rename = document.createElement("button");
+      rename.type = "button"; rename.textContent = "✎"; rename.title = "Byt namn";
+      rename.onclick = async () => {
+        const name = prompt("Vad ska chatten heta?", c.title || "Ny chatt");
+        if (!name || !name.trim()) return;
+        c.title = name.trim().slice(0, 60);
+        await persistConversation(c);
+        renderHistory();
+      };
+      const remove = document.createElement("button");
+      remove.type = "button"; remove.textContent = "×"; remove.title = "Radera chatt";
+      remove.onclick = async () => {
+        if (!confirm("Vill du radera chatten '" + (c.title || "Ny chatt") + "'?")) return;
+        if (currentUser) {
+          const { error } = await db.from("smartai_chats").delete().eq("user_id", currentUser.id).eq("conversation_id", c.id);
+          if (error) { alert("Kunde inte radera chatten: " + error.message); return; }
+        }
+        conversations = conversations.filter(x => x.id !== c.id);
+        if (activeId === c.id) { activeId = null; messages = []; renderChat(); }
+        renderHistory();
+      };
+      tools.append(rename, remove);
+      row.append(b, tools);
+      historyEl.appendChild(row);
     });
+  }
+  async function persistConversation(c) {
+    if (!currentUser) return;
+    const { error } = await db.from("smartai_chats").upsert({
+      user_id: currentUser.id, conversation_id: c.id,
+      title: c.title || "Ny chatt", messages: c.messages || [],
+      updated_at: new Date().toISOString()
+    }, { onConflict: "user_id,conversation_id" });
+    if (error) alert("Kunde inte spara ändringen: " + error.message);
   }
   function newChat() {
     activeId = Date.now().toString();
@@ -269,6 +332,7 @@ textarea::placeholder{color:#999}
   }
   document.querySelectorAll(".suggestion").forEach(b => b.addEventListener("click", () => { input.value = b.textContent; input.focus(); }));
   document.getElementById("newChat").addEventListener("click", newChat);
+  document.getElementById("chatSearch").addEventListener("input", renderHistory);
   document.getElementById("menu").addEventListener("click", () => sidebar.classList.toggle("open"));
   input.addEventListener("input", () => { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 180) + "px"; });
   input.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); } });
