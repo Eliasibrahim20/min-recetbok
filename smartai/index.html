@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#212121">
-  <title>SmartAI</title>
+  <title>NOVA AI</title>
   <style>
 :root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:#10131d;color:#eef1fa}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 65% -15%,#29365b 0,transparent 48%),#10131d}
@@ -108,16 +108,16 @@ textarea::placeholder{color:#999}
 <body>
 <div class="layout">
   <aside class="sidebar" id="sidebar">
-    <div class="brand"><span class="brand-mark">✦</span> SmartAI</div>
+    <div class="brand"><span class="brand-mark">✦</span> NOVA AI</div>
     <button class="new-chat" id="newChat">＋　Ny chatt</button>
     <div class="history-title">Tidigare chattar</div>
     <div class="history" id="history"></div>
-    <div class="side-note">SmartAI kan göra misstag. Kontrollera viktig information.</div>
+    <div class="side-note">NOVA AI kan göra misstag. Kontrollera viktig information.</div>
   </aside>
   <main class="main">
     <div class="topbar">
       <button class="menu" id="menu" aria-label="Öppna meny">☰</button>
-      <div class="mobile-brand">SmartAI</div><div class="account-actions"><span class="account-email" id="accountEmail"></span><button id="logoutBtn" class="hidden" type="button">Logga ut</button></div>
+      <div class="mobile-brand">NOVA AI</div><div class="account-actions"><span class="account-email" id="accountEmail"></span><button id="logoutBtn" class="hidden" type="button">Logga ut</button></div>
     </div>
     <section id="chat" aria-live="polite">
       <div class="welcome" id="welcome">
@@ -135,15 +135,15 @@ textarea::placeholder{color:#999}
       <form class="composer" id="form">
         <input id="imageInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
         <button class="tool-btn" id="addImage" type="button" title="Bifoga bild">＋</button>
-        <textarea id="message" placeholder="Fråga SmartAI" rows="1"></textarea>
+        <textarea id="message" placeholder="Fråga NOVA AI" rows="1"></textarea>
         <button class="tool-btn" id="mic" type="button" title="Prata">🎙</button>
         <button class="send" id="send" type="submit" aria-label="Skicka">↑</button>
       </form>
-      <div class="disclaimer">SmartAI använder Gemini. Skriv inte känsliga eller privata uppgifter.</div>
+      <div class="disclaimer">NOVA AI använder Gemini. Skriv inte känsliga eller privata uppgifter.</div>
     </div>
   </main>
 </div>
-<div class="auth-screen" id="authScreen"><div class="auth-card"><h1>Välkommen till SmartAI</h1><p>Skapa ett konto eller logga in för att spara dina chattar.</p><input id="authEmail" type="email" autocomplete="email" placeholder="E-post"><input id="authPassword" type="password" autocomplete="current-password" placeholder="Lösenord"><div class="auth-error" id="authError"></div><button id="loginBtn" type="button">Logga in</button><button id="signupBtn" class="secondary" type="button">Skapa konto</button></div></div>
+<div class="auth-screen" id="authScreen"><div class="auth-card"><h1>Välkommen till NOVA AI</h1><p>Skapa ett konto eller logga in för att spara dina chattar.</p><input id="authEmail" type="email" autocomplete="email" placeholder="E-post"><input id="authPassword" type="password" autocomplete="current-password" placeholder="Lösenord"><div class="auth-error" id="authError"></div><button id="loginBtn" type="button">Logga in</button><button id="signupBtn" class="secondary" type="button">Skapa konto</button></div></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
   const SUPABASE_URL = "https://dgkjfffoutoalwisqyoz.supabase.co";
@@ -314,7 +314,7 @@ textarea::placeholder{color:#999}
     await storeChat(); // Spara användarens meddelande direkt, även om AI-svaret dröjer.
     input.value = ""; input.style.height = "auto";
     send.disabled = true;
-    const waiting = addMessage("SmartAI skriver…", "assistant");
+    const waiting = addMessage("NOVA AI skriver…", "assistant");
     waiting.classList.add("typing");
     try {
       const history = messages.slice(0, -2)
@@ -335,7 +335,7 @@ textarea::placeholder{color:#999}
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Serverfel (" + response.status + ")");
-      waiting.textContent = data.reply || "SmartAI skickade inget svar.";
+      waiting.textContent = data.reply || "NOVA AI skickade inget svar.";
       waiting.classList.remove("typing");
       if ("speechSynthesis" in window) {
         const utterance = new SpeechSynthesisUtterance(waiting.textContent);
@@ -347,7 +347,7 @@ textarea::placeholder{color:#999}
       messages[messages.length - 1].text = waiting.textContent;
       await storeChat(); chat.scrollTop = chat.scrollHeight;
     } catch (error) {
-      waiting.textContent = "Kunde inte nå SmartAI: " + error.message;
+      waiting.textContent = "Kunde inte nå NOVA AI: " + error.message;
       waiting.classList.remove("typing");
       messages[messages.length - 1].text = waiting.textContent;
       await storeChat(); // Spara även felmeddelandet så att chatten finns kvar.
