@@ -114,6 +114,8 @@
   const SUPABASE_URL = "https://njeqjfcpjzacqbunomag.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_5OlKkldkHmExxOlWRSxkyg_c5dYjsOM";
   const FUNCTION_URL = "https://dgkjfffoutoalwisqyoz.supabase.co/functions/v1/hyper-responder";
+  // Nyckeln hör till projektet där SmartAI-funktionen ligger.
+  const FUNCTION_ANON_KEY = "sb_publishable_sAIf6M6qRqQrO4YZqhgIbg_pKOuZh-6";
   const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let currentUser = null;
   const chat = document.getElementById("chat");
@@ -295,8 +297,8 @@
         method: "POST",
         headers: {
           "Content-Type": "application/json",
-          "apikey": SUPABASE_ANON_KEY,
-          "Authorization": "Bearer " + SUPABASE_ANON_KEY
+          "apikey": FUNCTION_ANON_KEY,
+          "Authorization": "Bearer " + FUNCTION_ANON_KEY
         },
         body: JSON.stringify({
           message: message || "Beskriv bilden.",
