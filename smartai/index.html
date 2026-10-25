@@ -208,7 +208,7 @@
           "apikey": SUPABASE_ANON_KEY,
           "Authorization": "Bearer " + SUPABASE_ANON_KEY
         },
-        body: JSON.stringify({ message })
+        body: JSON.stringify({\n          message,\n          history: messages.slice(0, -1).filter(m => m.role === "user" || m.role === "assistant").map(m => ({\n            role: m.role === "assistant" ? "model" : "user",\n            parts: [{ text: m.text }]\n          }))\n        })
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Serverfel (" + response.status + ")");
