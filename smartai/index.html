@@ -382,8 +382,11 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
     waiting.classList.add("typing");
     try {
       const history = messages.slice(0, -2)
-        .filter(m => m.role === "user" || m.role === "assistant")
-        .map(m => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.text }] }));
+        .filter(m => (m.role === "user" || m.role === "assistant") && m.text)
+        .map(m => ({
+          role: m.role === "assistant" ? "model" : "user",
+          text: m.text
+        }));
       const response = await fetch(FUNCTION_URL, {
         method: "POST",
         headers: {
