@@ -22,7 +22,7 @@
     .history-item{background:transparent;border:0;color:#ddd;text-align:left;border-radius:8px;padding:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
     .side-note{margin-top:auto;color:#858585;font-size:12px;line-height:1.5;padding:9px}
     .main{min-width:0;flex:1;display:flex;flex-direction:column;min-height:100vh}
-    .topbar{height:58px;display:flex;align-items:center;gap:12px;padding:0 22px;border-bottom:1px solid #333}
+    .topbar{height:58px;display:flex;align-items:center;gap:12px;padding:0 22px;border-bottom:1px solid #333}.account-actions{margin-left:auto;display:flex;gap:8px;align-items:center}.account-actions button{border:1px solid #555;background:#303030;color:#eee;border-radius:9px;padding:8px 12px}.account-email{font-size:12px;color:#bbb}.auth-screen{position:fixed;inset:0;background:#171717;z-index:20;display:grid;place-items:center;padding:20px}.auth-card{width:min(100%,420px);background:#252525;border:1px solid #444;border-radius:18px;padding:26px}.auth-card h1{font-size:27px;margin:0 0 8px}.auth-card p{color:#aaa;line-height:1.5}.auth-card input{width:100%;padding:13px;margin:7px 0;background:#171717;border:1px solid #555;border-radius:9px;color:#fff}.auth-card button{width:100%;padding:12px;margin-top:9px;border:0;border-radius:9px;background:#eee;color:#171717;font-weight:700}.auth-card .secondary{background:transparent;color:#ddd;border:1px solid #555}.auth-error{color:#ff9b9b;font-size:13px;min-height:18px}.hidden{display:none!important}
     .mobile-brand{font-weight:650}
     .menu{display:none;background:transparent;color:#eee;border:0;font-size:21px}
     #chat{width:min(100%,820px);margin:0 auto;flex:1;padding:32px 24px 18px;display:flex;flex-direction:column;gap:24px}
@@ -96,7 +96,7 @@
 </div>
 <script>
   const SUPABASE_ANON_KEY = "sb_publishable_sAIf6M6qRqQrO4YZqhgIbg_pKOuZh-6";
-  const FUNCTION_URL = "https://dgkjfffoutoalwisqyoz.supabase.co/functions/v1/hyper-responder";
+  const FUNCTION_URL = "https://dgkjfffoutoalwisqyoz.supabase.co/functions/v1/hyper-responder";\n  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);\n  let currentUser = null;
   const chat = document.getElementById("chat");
   const form = document.getElementById("form");
   const input = document.getElementById("message");
@@ -112,11 +112,26 @@
   let activeId = null;
   let messages = [];
 
-  try { conversations = JSON.parse(localStorage.getItem("smartai_chats") || "[]"); } catch { conversations = []; }
-
-  function saveChats() {
-    try { localStorage.setItem("smartai_chats", JSON.stringify(conversations)); } catch {}
+  async function loadChatsFromAccount() {
+    if (!currentUser) return;
+    const { data, error } = await db.from("smartai_chats").select("conversation_id,title,messages").eq("user_id", currentUser.id).order("updated_at", { ascending: false });
+    if (error) throw error;
+    conversations = (data || []).map(row => ({ id: row.conversation_id, title: row.title, messages: row.messages || [] }));
     renderHistory();
+  }
+  async function saveChats() {
+    renderHistory();
+    if (!currentUser || !activeId) return;
+    const c = conversations.find(x => x.id === activeId);
+    if (!c) return;
+    const { error } = await db.from("smartai_chats").upsert({
+      user_id: currentUser.id,
+      conversation_id: c.id,
+      title: c.title || "Ny chatt",
+      messages: c.messages || [],
+      updated_at: new Date().toISOString()
+    }, { onConflict: "user_id,conversation_id" });
+    if (error) console.error("Kunde inte spara chatten:", error);
   }
   function renderHistory() {
     historyEl.innerHTML = "";
@@ -143,15 +158,15 @@
     renderChat();
     sidebar.classList.remove("open");
   }
-  function storeChat() {
+  async function storeChat() {
     if (!activeId) activeId = Date.now().toString();
-    let c = conversations.find(x => x.id === activeId);
-    if (!c) {
-      c = { id: activeId, title: messages.find(m => m.role === "user")?.text?.slice(0, 38) || "Ny chatt", messages: [] };
-      conversations.push(c);
+    let item = conversations.find(x => x.id === activeId);
+    if (!item) {
+      item = { id: activeId, title: messages.find(m => m.role === "user")?.text?.slice(0, 38) || "Ny chatt", messages: [] };
+      conversations.push(item);
     }
-    c.messages = messages;
-    saveChats();
+    item.messages = messages;
+    await saveChats();
   }
   function renderChat() {
     chat.innerHTML = "";
@@ -275,7 +290,7 @@
       }
       selectedImage = null; imageInput.value = ""; previewImage.removeAttribute("src"); attachmentPreview.classList.remove("show");
       messages[messages.length - 1].text = waiting.textContent;
-      storeChat(); chat.scrollTop = chat.scrollHeight;
+      await storeChat(); chat.scrollTop = chat.scrollHeight;
     } catch (error) {
       waiting.textContent = "Kunde inte nå SmartAI: " + error.message;
       waiting.classList.remove("typing");
