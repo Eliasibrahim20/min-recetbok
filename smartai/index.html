@@ -3,109 +3,232 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="theme-color" content="#090d1a">
-  <title>SmartAI – Din AI-assistent</title>
+  <meta name="theme-color" content="#212121">
+  <title>SmartAI</title>
   <style>
-    :root { color-scheme: dark; font-family: Inter, system-ui, Arial, sans-serif; }
-    * { box-sizing: border-box; }
-    body { margin: 0; min-height: 100vh; background: #090d1a; color: #f4f6ff; }
-    .app { min-height: 100vh; display: flex; flex-direction: column; max-width: 920px; margin: auto; padding: 24px; }
-    header { display:flex; align-items:center; gap:12px; padding: 10px 0 22px; border-bottom:1px solid #252c42; }
-    .logo { width:42px; height:42px; display:grid; place-items:center; border-radius:14px; background:linear-gradient(135deg,#4778ff,#9a59ed); font-size:22px; }
-    h1 { font-size:20px; margin:0; } .sub { color:#9ba6c3; font-size:13px; margin-top:3px; }
-    #chat { flex:1; padding:28px 0; display:flex; flex-direction:column; gap:16px; }
-    .welcome { text-align:center; margin:auto; max-width:560px; padding:30px 10px; }
-    .welcome h2 { font-size: clamp(26px,5vw,38px); margin:0 0 12px; }
-    .welcome p { color:#aab4cf; line-height:1.6; }
-    .msg { max-width:82%; padding:14px 17px; border-radius:17px; line-height:1.55; white-space:pre-wrap; overflow-wrap:anywhere; }
-    .user { align-self:flex-end; background:#344d9b; border-bottom-right-radius:5px; }
-    .assistant { align-self:flex-start; background:#171f34; border:1px solid #29334d; border-bottom-left-radius:5px; }
-    form { display:flex; gap:10px; padding:12px; background:#151c2e; border:1px solid #303a56; border-radius:18px; }
-    textarea { flex:1; resize:vertical; min-height:48px; max-height:150px; border:0; outline:0; color:#fff; background:transparent; font:inherit; padding:12px 8px; }
-    button { border:0; border-radius:13px; background:#617cf6; color:white; font-weight:700; padding:0 20px; cursor:pointer; }
-    button:disabled { opacity:.55; cursor:wait; }
-    .hint { color:#7f8ba9; font-size:12px; text-align:center; padding:10px; }
-    @media(max-width:600px) { .app{padding:14px}.msg{max-width:94%} form{gap:5px;padding:8px} button{padding:0 14px} }
+    :root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#212121;color:#ececec}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:#212121}
+    button,textarea{font:inherit}
+    button{cursor:pointer}
+    .layout{display:flex;min-height:100vh}
+    .sidebar{width:260px;background:#171717;padding:14px 12px;display:flex;flex-direction:column;gap:14px;flex-shrink:0}
+    .brand{display:flex;align-items:center;gap:10px;padding:8px 9px;font-weight:700;font-size:18px}
+    .brand-mark{width:30px;height:30px;border-radius:10px;background:linear-gradient(135deg,#4d8bff,#9a59ed);display:grid;place-items:center}
+    .new-chat{background:transparent;color:#eee;border:1px solid #454545;border-radius:10px;padding:11px;text-align:left}
+    .new-chat:hover,.history-item:hover{background:#292929}
+    .history-title{font-size:12px;color:#999;padding:12px 9px 4px}
+    .history{overflow:auto;display:flex;flex-direction:column;gap:4px}
+    .history-item{background:transparent;border:0;color:#ddd;text-align:left;border-radius:8px;padding:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .side-note{margin-top:auto;color:#858585;font-size:12px;line-height:1.5;padding:9px}
+    .main{min-width:0;flex:1;display:flex;flex-direction:column;min-height:100vh}
+    .topbar{height:58px;display:flex;align-items:center;gap:12px;padding:0 22px;border-bottom:1px solid #333}
+    .mobile-brand{font-weight:650}
+    .menu{display:none;background:transparent;color:#eee;border:0;font-size:21px}
+    #chat{width:min(100%,820px);margin:0 auto;flex:1;padding:32px 24px 18px;display:flex;flex-direction:column;gap:24px}
+    .welcome{margin:auto;text-align:center;width:100%;padding:40px 0}
+    .welcome h1{font-size:clamp(27px,4vw,36px);font-weight:600;margin:0 0 26px}
+    .suggestions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:620px;margin:0 auto}
+    .suggestion{background:#2b2b2b;color:#ddd;border:1px solid #414141;border-radius:13px;padding:14px;text-align:left;line-height:1.4}
+    .suggestion:hover{background:#353535}
+    .message{display:flex;gap:12px;align-items:flex-start;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+    .avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;font-size:14px}
+    .avatar.user{background:#555}.avatar.ai{background:linear-gradient(135deg,#4d8bff,#9a59ed)}
+    .message-body{flex:1;padding-top:3px;min-width:0}
+    .message-body p{margin:0 0 12px}
+    .message-actions{display:flex;gap:8px;margin-top:8px}
+    .small-action{background:transparent;border:0;color:#999;padding:4px 6px;border-radius:6px;font-size:12px}
+    .small-action:hover{background:#333;color:#eee}
+    .composer-wrap{width:min(100%,820px);margin:0 auto;padding:12px 24px 24px}
+    .composer{display:flex;align-items:flex-end;gap:10px;background:#2f2f2f;border:1px solid #4b4b4b;border-radius:25px;padding:10px 12px 10px 18px;box-shadow:0 8px 28px #0002}
+    .composer:focus-within{border-color:#777}
+    textarea{flex:1;resize:none;max-height:180px;min-height:28px;border:0;outline:0;background:transparent;color:#eee;padding:7px 0;line-height:1.5}
+    textarea::placeholder{color:#999}
+    .send{width:38px;height:38px;border:0;border-radius:50%;background:#eee;color:#171717;font-size:19px;font-weight:700;display:grid;place-items:center}
+    .send:disabled{opacity:.4;cursor:not-allowed}
+    .disclaimer{text-align:center;color:#888;font-size:11px;padding-top:10px}
+    .typing{color:#aaa}
+    @media(max-width:700px){.sidebar{display:none;position:fixed;z-index:5;inset:0 auto 0 0;width:280px;box-shadow:0 0 0 100vmax #0008}.sidebar.open{display:flex}.menu{display:block}.topbar{padding:0 14px}#chat{padding:24px 16px 12px}.composer-wrap{padding:10px 12px 18px}.suggestions{grid-template-columns:1fr}.welcome{padding:20px 0}.welcome h1{margin-bottom:20px}}
   </style>
 </head>
 <body>
-  <main class="app">
-    <header>
-      <div class="logo">✦</div>
-      <div><h1>SmartAI</h1><div class="sub">Din personliga AI-assistent</div></div>
-    </header>
+<div class="layout">
+  <aside class="sidebar" id="sidebar">
+    <div class="brand"><span class="brand-mark">✦</span> SmartAI</div>
+    <button class="new-chat" id="newChat">＋　Ny chatt</button>
+    <div class="history-title">Tidigare chattar</div>
+    <div class="history" id="history"></div>
+    <div class="side-note">SmartAI kan göra misstag. Kontrollera viktig information.</div>
+  </aside>
+  <main class="main">
+    <div class="topbar">
+      <button class="menu" id="menu" aria-label="Öppna meny">☰</button>
+      <div class="mobile-brand">SmartAI</div>
+    </div>
     <section id="chat" aria-live="polite">
       <div class="welcome" id="welcome">
-        <h2>Vad kan jag hjälpa dig med?</h2>
-        <p>Ställ en fråga, be om en förklaring eller få hjälp att komma igång med en idé.</p>
+        <h1>Vad kan jag hjälpa dig med?</h1>
+        <div class="suggestions">
+          <button class="suggestion">Förklara något svårt på ett enkelt sätt</button>
+          <button class="suggestion">Hjälp mig komma på en bra idé</button>
+          <button class="suggestion">Skriv eller förbättra en text</button>
+          <button class="suggestion">Hjälp mig planera min dag</button>
+        </div>
       </div>
     </section>
-    <form id="form">
-      <textarea id="message" placeholder="Skriv ett meddelande till SmartAI..." rows="1" required></textarea>
-      <button id="send" type="submit">Skicka</button>
-    </form>
-    <div class="hint">SmartAI kan göra misstag. Kontrollera viktig information.</div>
+    <div class="composer-wrap">
+      <form class="composer" id="form">
+        <textarea id="message" placeholder="Fråga SmartAI" rows="1" required></textarea>
+        <button class="send" id="send" type="submit" aria-label="Skicka">↑</button>
+      </form>
+      <div class="disclaimer">SmartAI använder Gemini. Skriv inte känsliga eller privata uppgifter.</div>
+    </div>
   </main>
-  <script>
-    // Supabase-projektets offentliga URL och anon/publishable key.
-    // Lägg aldrig in OpenAI-nyckeln här.
-    const SUPABASE_URL = "https://dgkjfffoutoalwisqyoz.supabase.co";
-   const SUPABASE_ANON_KEY = "sb_publishable_sAIf6M6qRqQrO4YZqhgIbg_pKOuZh-6";
+</div>
+<script>
+  const SUPABASE_ANON_KEY = "sb_publishable_sAIf6M6qRqQrO4YZqhgIbg_pKOuZh-6";
   const FUNCTION_URL = "https://dgkjfffoutoalwisqyoz.supabase.co/functions/v1/hyper-responder";
+  const chat = document.getElementById("chat");
+  const form = document.getElementById("form");
+  const input = document.getElementById("message");
+  const send = document.getElementById("send");
+  const historyEl = document.getElementById("history");
+  const sidebar = document.getElementById("sidebar");
+  let conversations = [];
+  let activeId = null;
+  let messages = [];
 
-   const form = document.getElementById("form");
-const input = document.getElementById("message");
-const send = document.getElementById("send");
+  try { conversations = JSON.parse(localStorage.getItem("smartai_chats") || "[]"); } catch { conversations = []; }
 
-
-const chat = document.getElementById("chat");
-
-    function addMessage(text, role) {
-      document.getElementById("welcome")?.remove();
-      const item = document.createElement("div");
-      item.className = "msg " + role;
-      item.textContent = text;
-      chat.appendChild(item);
-      item.scrollIntoView({ behavior: "smooth", block: "end" });
-      return item;
-    }
-
-    form.addEventListener("submit", async (event) => {
-      event.preventDefault();
-      const message = input.value.trim();
-      if (!message || send.disabled) return;
-      if (SUPABASE_ANON_KEY.startsWith("KLIStra_")) {
-        addMessage("Webbplatsen behöver först få Supabase anon/publishable key. Lägg in den i koden enligt instruktionen.", "assistant");
-        return;
-      }
-
-      addMessage(message, "user");
-      input.value = "";
-      send.disabled = true;
-      send.textContent = "Väntar…";
-      const waiting = addMessage("SmartAI skriver…", "assistant");
-
-      try {
-        const response = await fetch(FUNCTION_URL, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-            "apikey": SUPABASE_ANON_KEY,
-            "Authorization": "Bearer " + SUPABASE_ANON_KEY
-          },
-          body: JSON.stringify({ message })
-        });
-        const data = await response.json();
-        if (!response.ok) throw new Error(data.error || "Serverfel (" + response.status + ")");
-        waiting.textContent = data.reply || "SmartAI skickade inget svar.";
-      } catch (error) {
-        waiting.textContent = "Kunde inte nå SmartAI: " + error.message;
-      } finally {
-        send.disabled = false;
-        send.textContent = "Skicka";
-        input.focus();
-      }
+  function saveChats() {
+    try { localStorage.setItem("smartai_chats", JSON.stringify(conversations)); } catch {}
+    renderHistory();
+  }
+  function renderHistory() {
+    historyEl.innerHTML = "";
+    conversations.slice().reverse().forEach(c => {
+      const b = document.createElement("button");
+      b.className = "history-item";
+      b.textContent = c.title || "Ny chatt";
+      b.onclick = () => loadChat(c.id);
+      historyEl.appendChild(b);
     });
-  </script>
+  }
+  function newChat() {
+    activeId = Date.now().toString();
+    messages = [];
+    renderChat();
+    sidebar.classList.remove("open");
+    input.focus();
+  }
+  function loadChat(id) {
+    const c = conversations.find(x => x.id === id);
+    if (!c) return;
+    activeId = c.id;
+    messages = c.messages || [];
+    renderChat();
+    sidebar.classList.remove("open");
+  }
+  function storeChat() {
+    if (!activeId) activeId = Date.now().toString();
+    let c = conversations.find(x => x.id === activeId);
+    if (!c) {
+      c = { id: activeId, title: messages.find(m => m.role === "user")?.text?.slice(0, 38) || "Ny chatt", messages: [] };
+      conversations.push(c);
+    }
+    c.messages = messages;
+    saveChats();
+  }
+  function renderChat() {
+    chat.innerHTML = "";
+    if (!messages.length) {
+      const w = document.createElement("div");
+      w.className = "welcome";
+      w.id = "welcome";
+      w.innerHTML = '<h1>Vad kan jag hjälpa dig med?</h1><div class="suggestions"><button class="suggestion">Förklara något svårt på ett enkelt sätt</button><button class="suggestion">Hjälp mig komma på en bra idé</button><button class="suggestion">Skriv eller förbättra en text</button><button class="suggestion">Hjälp mig planera min dag</button></div>';
+      chat.appendChild(w);
+      w.querySelectorAll(".suggestion").forEach(b => b.addEventListener("click", () => { input.value = b.textContent; input.focus(); }));
+      return;
+    }
+    messages.forEach((m, i) => addMessageElement(m, i));
+  }
+  function addMessageElement(m, index) {
+    const row = document.createElement("div");
+    row.className = "message";
+    const avatar = document.createElement("div");
+    avatar.className = "avatar " + (m.role === "user" ? "user" : "ai");
+    avatar.textContent = m.role === "user" ? "Du" : "✦";
+    const body = document.createElement("div");
+    body.className = "message-body";
+    const text = document.createElement("div");
+    text.textContent = m.text;
+    body.appendChild(text);
+    if (m.role === "assistant" && m.text) {
+      const actions = document.createElement("div");
+      actions.className = "message-actions";
+      const copy = document.createElement("button");
+      copy.className = "small-action";
+      copy.textContent = "Kopiera";
+      copy.onclick = async () => { try { await navigator.clipboard.writeText(m.text); copy.textContent = "Kopierat"; } catch { copy.textContent = "Kunde inte kopiera"; } };
+      actions.appendChild(copy);
+      body.appendChild(actions);
+    }
+    row.append(avatar, body);
+    chat.appendChild(row);
+    return text;
+  }
+  function addMessage(text, role) {
+    const m = { role, text };
+    messages.push(m);
+    const el = addMessageElement(m, messages.length - 1);
+    chat.scrollTop = chat.scrollHeight;
+    return el;
+  }
+  document.querySelectorAll(".suggestion").forEach(b => b.addEventListener("click", () => { input.value = b.textContent; input.focus(); }));
+  document.getElementById("newChat").addEventListener("click", newChat);
+  document.getElementById("menu").addEventListener("click", () => sidebar.classList.toggle("open"));
+  input.addEventListener("input", () => { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 180) + "px"; });
+  input.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); } });
+  form.addEventListener("submit", async event => {
+    event.preventDefault();
+    const message = input.value.trim();
+    if (!message || send.disabled) return;
+    if (!messages.length) activeId = Date.now().toString();
+    addMessage(message, "user");
+    input.value = "";
+    input.style.height = "auto";
+    send.disabled = true;
+    const waiting = addMessage("SmartAI skriver…", "assistant");
+    waiting.classList.add("typing");
+    try {
+      const response = await fetch(FUNCTION_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "apikey": SUPABASE_ANON_KEY,
+          "Authorization": "Bearer " + SUPABASE_ANON_KEY
+        },
+        body: JSON.stringify({ message })
+      });
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Serverfel (" + response.status + ")");
+      waiting.textContent = data.reply || "SmartAI skickade inget svar.";
+      waiting.classList.remove("typing");
+      const assistantMessage = messages[messages.length - 1];
+      assistantMessage.text = waiting.textContent;
+      storeChat();
+      chat.scrollTop = chat.scrollHeight;
+    } catch (error) {
+      waiting.textContent = "Kunde inte nå SmartAI: " + error.message;
+      waiting.classList.remove("typing");
+      messages[messages.length - 1].text = waiting.textContent;
+    } finally {
+      send.disabled = false;
+      input.focus();
+    }
+  });
+  renderHistory();
+  renderChat();
+</script>
 </body>
 </html>
