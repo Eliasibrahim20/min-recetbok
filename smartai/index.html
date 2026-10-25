@@ -311,6 +311,7 @@ textarea::placeholder{color:#999}
     if ((!message && !selectedImage) || send.disabled) return;
     if (!messages.length) activeId = Date.now().toString();
     addMessage(message || "Titta på bilden.", "user");
+    await storeChat(); // Spara användarens meddelande direkt, även om AI-svaret dröjer.
     input.value = ""; input.style.height = "auto";
     send.disabled = true;
     const waiting = addMessage("SmartAI skriver…", "assistant");
@@ -349,6 +350,7 @@ textarea::placeholder{color:#999}
       waiting.textContent = "Kunde inte nå SmartAI: " + error.message;
       waiting.classList.remove("typing");
       messages[messages.length - 1].text = waiting.textContent;
+      await storeChat(); // Spara även felmeddelandet så att chatten finns kvar.
     } finally {
       send.disabled = false; input.focus();
     }
