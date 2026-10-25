@@ -24,6 +24,8 @@
     .main{min-width:0;flex:1;display:flex;flex-direction:column;min-height:100vh}
     .topbar{height:58px;display:flex;align-items:center;gap:12px;padding:0 22px;border-bottom:1px solid #333}
     .mobile-brand{font-weight:650}
+    .account-actions{margin-left:auto;display:flex;align-items:center;gap:10px}.account-actions button{background:#303030;border:1px solid #555;color:#eee;border-radius:9px;padding:8px 11px}.account-email{font-size:12px;color:#bbb;max-width:180px;overflow:hidden;text-overflow:ellipsis}
+    .auth-screen{position:fixed;inset:0;z-index:50;background:#171717;display:grid;place-items:center;padding:18px}.auth-card{width:min(100%,430px);background:#252525;border:1px solid #444;border-radius:20px;padding:26px;box-shadow:0 20px 70px #0008}.auth-card h1{font-size:27px;margin:20px 0 8px}.auth-card p{color:#aaa;line-height:1.5}.auth-card input{width:100%;padding:13px;margin:7px 0;background:#171717;border:1px solid #555;border-radius:10px;color:#fff}.auth-card button{width:100%;padding:12px;margin-top:9px;border:0;border-radius:10px;background:#eee;color:#171717;font-weight:750}.auth-card button.secondary{background:transparent;color:#ddd;border:1px solid #555}.auth-error{color:#ff9b9b;font-size:13px;min-height:22px;margin-top:10px}
     .menu{display:none;background:transparent;color:#eee;border:0;font-size:21px}
     #chat{width:min(100%,820px);margin:0 auto;flex:1;padding:32px 24px 18px;display:flex;flex-direction:column;gap:24px}
     .welcome{margin:auto;text-align:center;width:100%;padding:40px 0}
@@ -53,11 +55,25 @@
     .attachment.show{display:flex}.attachment img{width:48px;height:48px;object-fit:cover;border-radius:8px}
     .attachment button{background:transparent;border:0;color:#ddd}
     .typing{color:#aaa}
-    @media(max-width:700px){.sidebar{display:none;position:fixed;z-index:5;inset:0 auto 0 0;width:280px;box-shadow:0 0 0 100vmax #0008}.sidebar.open{display:flex}.menu{display:block}.topbar{padding:0 14px}#chat{padding:24px 16px 12px}.composer-wrap{padding:10px 12px 18px}.suggestions{grid-template-columns:1fr}.welcome{padding:20px 0}.welcome h1{margin-bottom:20px}}
+    @media(max-width:700px){.account-email{display:none}.sidebar{display:none;position:fixed;z-index:5;inset:0 auto 0 0;width:280px;box-shadow:0 0 0 100vmax #0008}.sidebar.open{display:flex}.menu{display:block}.topbar{padding:0 14px}#chat{padding:24px 16px 12px}.composer-wrap{padding:10px 12px 18px}.suggestions{grid-template-columns:1fr}.welcome{padding:20px 0}.welcome h1{margin-bottom:20px}}
   </style>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 <body>
-<div class="layout">
+<div class="auth-screen" id="authScreen">
+  <div class="auth-card">
+    <div class="brand"><span class="brand-mark">✦</span> SmartAI</div>
+    <h1 id="authHeading">Välkommen till SmartAI</h1>
+    <p>Skapa ett konto eller logga in. Dina chattar sparas på ditt konto och följer med mellan dina enheter.</p>
+    <input id="authEmail" type="email" placeholder="E-postadress" autocomplete="email">
+    <input id="authPassword" type="password" placeholder="Lösenord (minst 6 tecken)" autocomplete="current-password">
+    <button id="loginBtn" type="button">Logga in</button>
+    <button id="signupBtn" class="secondary" type="button">Skapa konto</button>
+    <div id="authMessage" class="auth-error" role="status"></div>
+    <p style="font-size:12px">Använd inte ett lösenord som du redan använder på andra webbplatser.</p>
+  </div>
+</div>
+<div class="layout" id="appLayout" style="visibility:hidden">
   <aside class="sidebar" id="sidebar">
     <div class="brand"><span class="brand-mark">✦</span> SmartAI</div>
     <button class="new-chat" id="newChat">＋　Ny chatt</button>
@@ -68,7 +84,7 @@
   <main class="main">
     <div class="topbar">
       <button class="menu" id="menu" aria-label="Öppna meny">☰</button>
-      <div class="mobile-brand">SmartAI</div>
+      <div class="mobile-brand">SmartAI</div><div class="account-actions"><span class="account-email" id="accountEmailLabel"></span><button id="logoutBtn" type="button">Logga ut</button></div>
     </div>
     <section id="chat" aria-live="polite">
       <div class="welcome" id="welcome">
@@ -95,8 +111,11 @@
   </main>
 </div>
 <script>
-  const SUPABASE_ANON_KEY = "sb_publishable_sAIf6M6qRqQrO4YZqhgIbg_pKOuZh-6";
+  const SUPABASE_URL = "https://njeqjfcpjzacqbunomag.supabase.co";
+  const SUPABASE_ANON_KEY = "sb_publishable_5OlKkldkHmExxOlWRSxkyg_c5dYjsOM";
   const FUNCTION_URL = "https://dgkjfffoutoalwisqyoz.supabase.co/functions/v1/hyper-responder";
+  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let currentUser = null;
   const chat = document.getElementById("chat");
   const form = document.getElementById("form");
   const input = document.getElementById("message");
@@ -112,11 +131,32 @@
   let activeId = null;
   let messages = [];
 
-  try { conversations = JSON.parse(localStorage.getItem("smartai_chats") || "[]"); } catch { conversations = []; }
-
-  function saveChats() {
-    try { localStorage.setItem("smartai_chats", JSON.stringify(conversations)); } catch {}
+  function renderHistory() {
+    historyEl.innerHTML = "";
+    conversations.slice().reverse().forEach(c => {
+      const b = document.createElement("button");
+      b.className = "history-item";
+      b.textContent = c.title || "Ny chatt";
+      b.onclick = () => loadChat(c.id);
+      historyEl.appendChild(b);
+    });
+  }
+  async function loadChatsFromAccount() {
+    const { data, error } = await db.from("recipe_data").select("data").eq("user_id", currentUser.id).maybeSingle();
+    if (error) throw error;
+    conversations = Array.isArray(data?.data?.smartaiChats) ? data.data.smartaiChats : [];
     renderHistory();
+  }
+  async function saveChats() {
+    renderHistory();
+    if (!currentUser) return;
+    const { data: existing, error: readError } = await db.from("recipe_data").select("data").eq("user_id", currentUser.id).maybeSingle();
+    if (readError) throw readError;
+    const merged = { ...(existing?.data || {}), smartaiChats: conversations };
+    const { error } = await db.from("recipe_data").upsert({
+      user_id: currentUser.id, data: merged, updated_at: new Date().toISOString()
+    }, { onConflict: "user_id" });
+    if (error) throw error;
   }
   function renderHistory() {
     historyEl.innerHTML = "";
@@ -143,15 +183,16 @@
     renderChat();
     sidebar.classList.remove("open");
   }
-  function storeChat() {
+  async function storeChat() {
     if (!activeId) activeId = Date.now().toString();
-    let c = conversations.find(x => x.id === activeId);
-    if (!c) {
-      c = { id: activeId, title: messages.find(m => m.role === "user")?.text?.slice(0, 38) || "Ny chatt", messages: [] };
-      conversations.push(c);
+    let item = conversations.find(x => x.id === activeId);
+    if (!item) {
+      item = { id: activeId, title: messages.find(m => m.role === "user")?.text?.slice(0, 38) || "Ny chatt", messages: [] };
+      conversations.unshift(item);
     }
-    c.messages = messages;
-    saveChats();
+    item.messages = messages;
+    item.updatedAt = new Date().toISOString();
+    await saveChats();
   }
   function renderChat() {
     chat.innerHTML = "";
@@ -275,7 +316,7 @@
       }
       selectedImage = null; imageInput.value = ""; previewImage.removeAttribute("src"); attachmentPreview.classList.remove("show");
       messages[messages.length - 1].text = waiting.textContent;
-      storeChat(); chat.scrollTop = chat.scrollHeight;
+      await storeChat(); chat.scrollTop = chat.scrollHeight;
     } catch (error) {
       waiting.textContent = "Kunde inte nå SmartAI: " + error.message;
       waiting.classList.remove("typing");
@@ -284,8 +325,54 @@
       send.disabled = false; input.focus();
     }
   });
-  renderHistory();
   renderChat();
+
+  const authScreen = document.getElementById("authScreen");
+  const authMessage = document.getElementById("authMessage");
+  const authEmail = document.getElementById("authEmail");
+  const authPassword = document.getElementById("authPassword");
+  async function enterAccount(user) {
+    currentUser = user;
+    document.getElementById("accountEmailLabel").textContent = user.email || "";
+    await loadChatsFromAccount();
+    authScreen.style.display = "none";
+    document.getElementById("appLayout").style.visibility = "visible";
+    if (conversations.length) loadChat(conversations[0].id);
+    else newChat();
+  }
+  document.getElementById("signupBtn").addEventListener("click", async () => {
+    authMessage.textContent = "";
+    const email = authEmail.value.trim();
+    const password = authPassword.value;
+    if (!email || password.length < 6) { authMessage.textContent = "Skriv en e-postadress och ett lösenord med minst 6 tecken."; return; }
+    const { data, error } = await db.auth.signUp({ email, password });
+    if (error) { authMessage.textContent = "Kunde inte skapa konto: " + error.message; return; }
+    if (data.session && data.user) {
+      try { await enterAccount(data.user); } catch (e) { authMessage.textContent = "Kontot skapades men data kunde inte laddas: " + e.message; }
+    } else {
+      authMessage.textContent = "Kontot är skapat. Bekräfta din e-post via länken vi skickat och logga sedan in.";
+    }
+  });
+  document.getElementById("loginBtn").addEventListener("click", async () => {
+    authMessage.textContent = "";
+    const { data, error } = await db.auth.signInWithPassword({ email: authEmail.value.trim(), password: authPassword.value });
+    if (error) { authMessage.textContent = "Kunde inte logga in: " + error.message; return; }
+    try { await enterAccount(data.user); } catch (e) { authMessage.textContent = "Inloggad, men kunde inte läsa sparade chattar: " + e.message; }
+  });
+  document.getElementById("logoutBtn").addEventListener("click", async () => {
+    await db.auth.signOut();
+    currentUser = null; conversations = []; messages = []; activeId = null;
+    document.getElementById("appLayout").style.visibility = "hidden";
+    authScreen.style.display = "grid";
+    authMessage.textContent = "Du är utloggad.";
+  });
+  db.auth.getSession().then(async ({ data, error }) => {
+    if (error) { authMessage.textContent = error.message; return; }
+    if (data.session?.user) {
+      try { await enterAccount(data.session.user); }
+      catch (e) { authMessage.textContent = "Kunde inte ladda dina chattar: " + e.message; }
+    }
+  });
 </script>
 </body>
 </html>
