@@ -52,6 +52,57 @@ textarea::placeholder{color:#8d9ab4}.send{width:39px;height:39px;border:0;border
 .attachment{display:none;align-items:center;gap:8px;color:#bbc7df;font-size:12px;padding:8px 14px}.attachment.show{display:flex}.attachment img{width:48px;height:48px;object-fit:cover;border-radius:8px}.attachment button{background:transparent;border:0;color:#ddd}
 .typing{color:#a7b5d0}
 @media(max-width:700px){.sidebar{display:none;position:fixed;z-index:5;inset:0 auto 0 0;width:280px;box-shadow:0 0 0 100vmax #0008}.sidebar.open{display:flex}.menu{display:block}.topbar{padding:0 14px}#chat{padding:24px 16px 12px}.composer-wrap{padding:10px 12px 18px}.suggestions{grid-template-columns:1fr}.welcome{padding:20px 0}.welcome h1{margin-bottom:22px}.auth-card{padding:27px 22px}}
+
+/* ChatGPT-inspirerad, ren och lugn layout */
+:root{background:#212121;color:#ececec}
+body{background:#212121}
+.sidebar{background:#171717;border-right:1px solid #2d2d2d;width:260px;padding:16px 12px;gap:12px}
+.brand{font-size:17px;padding:8px 10px}
+.brand-mark{width:30px;height:30px;border-radius:9px;box-shadow:none;background:#303030}
+.new-chat{background:transparent;border:1px solid #454545;color:#eee;box-shadow:none;border-radius:9px;padding:11px;font-weight:500}
+.new-chat:hover,.history-item:hover{background:#292929;transform:none}
+.history-title{color:#999;letter-spacing:.3px;text-transform:none;font-size:12px}
+.history-item{color:#ddd}
+.side-note{color:#858585}
+.main{background:#212121}
+.topbar{height:56px;background:#212121;border:0;padding:0 22px}
+.mobile-brand{font-size:16px;color:#eee}
+.account-actions button{background:#303030;border:1px solid #454545;border-radius:9px;color:#eee}
+.account-email{color:#aaa}
+#chat{width:min(100%,790px);padding:28px 24px 22px;gap:28px}
+.welcome{padding:45px 0}
+.welcome h1{font-size:clamp(27px,4vw,34px);font-weight:600;letter-spacing:-.7px;background:none;color:#eee;margin-bottom:30px}
+.suggestions{max-width:650px;gap:10px}
+.suggestion{background:#2b2b2b;border:1px solid #414141;color:#ddd;border-radius:14px;padding:15px;transition:background .15s,border-color .15s}
+.suggestion:hover{background:#353535;border-color:#666;transform:none}
+.message{gap:12px;line-height:1.7}
+.message .avatar{width:30px;height:30px;border-radius:50%;font-size:12px}
+.avatar.user{background:#444}.avatar.ai{background:#303030}
+.message.user{justify-content:flex-end}
+.message.user .avatar{display:none}
+.message.user .message-body{flex:0 1 auto;max-width:82%;background:#303030;border-radius:20px;padding:10px 16px}
+.message.assistant .message-body{padding-top:3px}
+.message.assistant .avatar{display:none}
+.message.assistant{gap:0}
+.message-body{color:#ececec}
+.small-action{color:#aaa}.small-action:hover{background:#333;color:#fff}
+.composer-wrap{width:min(100%,790px);padding:12px 24px 24px}
+.composer{background:#2f2f2f;border:1px solid #555;border-radius:26px;padding:9px 12px 9px 16px;box-shadow:none}
+.composer:focus-within{border-color:#777;box-shadow:none}
+textarea{color:#eee}
+textarea::placeholder{color:#999}
+.send{background:#eee;color:#171717;border-radius:50%;width:36px;height:36px}
+.tool-btn{color:#ccc;border-radius:50%}.tool-btn:hover{background:#444}
+.disclaimer{color:#999}
+.auth-screen{background:#212121}
+.auth-card{background:#2b2b2b;border:1px solid #484848;border-radius:18px;box-shadow:0 20px 60px #0006}
+.auth-card:before{background:#444;box-shadow:none;border-radius:50%}
+.auth-card p{color:#bbb}
+.auth-card input{background:#1f1f1f;border-color:#555}
+.auth-card input:focus{border-color:#aaa;box-shadow:none}
+.auth-card button{background:#eee;color:#171717}
+.auth-card .secondary{background:#3a3a3a;color:#eee;border-color:#555}
+@media(max-width:700px){.sidebar{background:#171717}.topbar{padding:0 14px}#chat{padding:24px 16px 12px}.composer-wrap{padding:10px 12px 18px}}
 </style>
 </head>
 <body>
@@ -186,7 +237,7 @@ textarea::placeholder{color:#8d9ab4}.send{width:39px;height:39px;border:0;border
   }
   function addMessageElement(m, index) {
     const row = document.createElement("div");
-    row.className = "message";
+    row.className = "message " + m.role;
     const avatar = document.createElement("div");
     avatar.className = "avatar " + (m.role === "user" ? "user" : "ai");
     avatar.textContent = m.role === "user" ? "Du" : "✦";
