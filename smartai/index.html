@@ -4,137 +4,71 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#212121">
-  <title>NOVA AI</title>
+  <title>SmartAI</title>
   <style>
-:root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:#10131d;color:#eef1fa}
-*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 65% -15%,#29365b 0,transparent 48%),#10131d}
-button,textarea,input{font:inherit}button{cursor:pointer}.layout{display:flex;min-height:100vh}
-.sidebar{width:278px;background:rgba(13,17,29,.94);border-right:1px solid #293148;padding:20px 15px;display:flex;flex-direction:column;gap:15px;flex-shrink:0}
-.brand{display:flex;align-items:center;gap:12px;padding:8px 10px;font-weight:750;font-size:19px;letter-spacing:.2px}
-.brand-mark{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#7c6cff,#35c9d8);display:grid;place-items:center;box-shadow:0 6px 22px #655bff55}
-.new-chat{background:linear-gradient(110deg,#655cf2,#438cdb);color:white;border:0;border-radius:12px;padding:13px;text-align:left;font-weight:650;box-shadow:0 7px 20px #554fe333;transition:.2s}
-.new-chat:hover{filter:brightness(1.12);transform:translateY(-1px)}
-.history-title{font-size:11px;color:#8290ad;padding:13px 9px 4px;text-transform:uppercase;letter-spacing:1.2px}
-.history{overflow:auto;display:flex;flex-direction:column;gap:5px}
-.history-item{background:transparent;border:0;color:#c8d0e4;text-align:left;border-radius:9px;padding:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.history-item:hover{background:#222b40}.side-note{margin-top:auto;color:#77829b;font-size:12px;line-height:1.6;padding:10px}
-.main{min-width:0;flex:1;display:flex;flex-direction:column;min-height:100vh}
-.topbar{height:66px;display:flex;align-items:center;gap:12px;padding:0 28px;border-bottom:1px solid #283148;background:#111725aa;backdrop-filter:blur(12px)}
-.account-actions{margin-left:auto;display:flex;gap:10px;align-items:center}.account-actions button{border:1px solid #394663;background:#202a40;color:#e7ecfa;border-radius:10px;padding:9px 13px}.account-actions button:hover{background:#2b3853}.account-email{font-size:12px;color:#aebbd5}
-.auth-screen{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 15%,#2b3862 0,transparent 55%),#0e1220;z-index:20;display:grid;place-items:center;padding:20px}
-.auth-card{width:min(100%,430px);background:linear-gradient(145deg,#1e2940,#171e30);border:1px solid #3b4968;border-radius:24px;padding:34px;box-shadow:0 24px 80px #0008}
-.auth-card:before{content:"✦";display:grid;place-items:center;width:54px;height:54px;margin:0 auto 18px;border-radius:17px;background:linear-gradient(135deg,#7c6cff,#35c9d8);font-size:26px;box-shadow:0 8px 25px #655bff55}
-.auth-card h1{font-size:27px;text-align:center;margin:0 0 8px;letter-spacing:-.6px}.auth-card p{color:#aeb9d0;line-height:1.55;text-align:center;margin:0 0 20px}
-.auth-card input{width:100%;padding:14px 15px;margin:7px 0;background:#111827;border:1px solid #3a4762;border-radius:11px;color:#fff;outline:none}
-.auth-card input:focus{border-color:#8a83ff;box-shadow:0 0 0 3px #8177ff25}
-.auth-card button{width:100%;padding:13px;margin-top:11px;border:0;border-radius:11px;background:linear-gradient(110deg,#7166f6,#398fdc);color:white;font-weight:700;transition:.2s}
-.auth-card button:hover{filter:brightness(1.12)}.auth-card .secondary{background:#242f47;color:#dce4f6;border:1px solid #3b4968}
-.auth-error{color:#ffaaaa;font-size:13px;min-height:19px;margin-top:6px}.hidden{display:none!important}
-.mobile-brand{font-weight:750;letter-spacing:.2px}.menu{display:none;background:transparent;color:#eee;border:0;font-size:21px}
-#chat{width:min(100%,900px);margin:0 auto;flex:1;padding:42px 30px 20px;display:flex;flex-direction:column;gap:25px}
-.welcome{margin:auto;text-align:center;width:100%;padding:45px 0}.welcome h1{font-size:clamp(29px,4vw,42px);font-weight:750;letter-spacing:-1.2px;margin:0 0 32px;background:linear-gradient(90deg,#fff,#aebaff,#8be4ed);background-clip:text;color:transparent}
-.suggestions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:680px;margin:0 auto}
-.suggestion{background:#1b2437;color:#dce5f8;border:1px solid #34425f;border-radius:15px;padding:17px;text-align:left;line-height:1.45;transition:.2s}
-.suggestion:hover{background:#25324c;border-color:#7775e9;transform:translateY(-2px)}
-.message{display:flex;gap:13px;align-items:flex-start;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
-.avatar{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;font-size:13px;font-weight:700}
-.avatar.user{background:#34415c}.avatar.ai{background:linear-gradient(135deg,#7166f6,#35b9d0)}
-.message-body{flex:1;padding-top:3px;min-width:0}.message-actions{display:flex;gap:8px;margin-top:8px}
-.small-action{background:transparent;border:0;color:#95a2bd;padding:5px 8px;border-radius:7px;font-size:12px}.small-action:hover{background:#27334b;color:#fff}
-.composer-wrap{width:min(100%,900px);margin:0 auto;padding:12px 30px 26px}
-.composer{display:flex;align-items:flex-end;gap:10px;background:#1c2639;border:1px solid #3b4964;border-radius:20px;padding:10px 12px 10px 17px;box-shadow:0 12px 38px #0004}
-.composer:focus-within{border-color:#7775e9;box-shadow:0 0 0 3px #7775e91c}
-textarea{flex:1;resize:none;max-height:180px;min-height:28px;border:0;outline:0;background:transparent;color:#f1f4fc;padding:7px 0;line-height:1.5}
-textarea::placeholder{color:#8d9ab4}.send{width:39px;height:39px;border:0;border-radius:13px;background:linear-gradient(135deg,#7a6bff,#43a9d8);color:white;font-size:19px;font-weight:700;display:grid;place-items:center}
-.send:disabled{opacity:.4;cursor:not-allowed}.disclaimer{text-align:center;color:#7886a2;font-size:11px;padding-top:11px}
-.tool-btn{width:38px;height:38px;border:0;border-radius:11px;background:transparent;color:#b8c4dc;font-size:20px;display:grid;place-items:center}
-.tool-btn:hover{background:#2b3851}.tool-btn.active{color:#8ab4ff}
-.attachment{display:none;align-items:center;gap:8px;color:#bbc7df;font-size:12px;padding:8px 14px}.attachment.show{display:flex}.attachment img{width:48px;height:48px;object-fit:cover;border-radius:8px}.attachment button{background:transparent;border:0;color:#ddd}
-.typing{color:#a7b5d0}
-@media(max-width:700px){.sidebar{display:none;position:fixed;z-index:5;inset:0 auto 0 0;width:280px;box-shadow:0 0 0 100vmax #0008}.sidebar.open{display:flex}.menu{display:block}.topbar{padding:0 14px}#chat{padding:24px 16px 12px}.composer-wrap{padding:10px 12px 18px}.suggestions{grid-template-columns:1fr}.welcome{padding:20px 0}.welcome h1{margin-bottom:22px}.auth-card{padding:27px 22px}}
-
-/* ChatGPT-inspirerad, ren och lugn layout */
-:root{background:#212121;color:#ececec}
-body{background:#212121}
-.sidebar{background:#171717;border-right:1px solid #2d2d2d;width:260px;padding:16px 12px;gap:12px}
-.brand{font-size:17px;padding:8px 10px}
-.brand-mark{width:30px;height:30px;border-radius:9px;box-shadow:none;background:#303030}
-.new-chat{background:transparent;border:1px solid #454545;color:#eee;box-shadow:none;border-radius:9px;padding:11px;font-weight:500}
-.new-chat:hover,.history-item:hover{background:#292929;transform:none}
-.history-title{color:#999;letter-spacing:.3px;text-transform:none;font-size:12px}
-.history-item{color:#ddd}
-.side-note{color:#858585}
-.main{background:#212121}
-.topbar{height:56px;background:#212121;border:0;padding:0 22px}
-.mobile-brand{font-size:16px;color:#eee}
-.account-actions button{background:#303030;border:1px solid #454545;border-radius:9px;color:#eee}
-.account-email{color:#aaa}
-#chat{width:min(100%,790px);padding:28px 24px 22px;gap:28px}
-.welcome{padding:45px 0}
-.welcome h1{font-size:clamp(27px,4vw,34px);font-weight:600;letter-spacing:-.7px;background:none;color:#eee;margin-bottom:30px}
-.suggestions{max-width:650px;gap:10px}
-.suggestion{background:#2b2b2b;border:1px solid #414141;color:#ddd;border-radius:14px;padding:15px;transition:background .15s,border-color .15s}
-.suggestion:hover{background:#353535;border-color:#666;transform:none}
-.message{gap:12px;line-height:1.7}
-.message .avatar{width:30px;height:30px;border-radius:50%;font-size:12px}
-.avatar.user{background:#444}.avatar.ai{background:#303030}
-.message.user{justify-content:flex-end}
-.message.user .avatar{display:none}
-.message.user .message-body{flex:0 1 auto;max-width:82%;background:#303030;border-radius:20px;padding:10px 16px}
-.message.assistant .message-body{padding-top:3px}
-.message.assistant .avatar{display:none}
-.message.assistant{gap:0}
-.message-body{color:#ececec}
-.small-action{color:#aaa}.small-action:hover{background:#333;color:#fff}
-.composer-wrap{width:min(100%,790px);padding:12px 24px 24px}
-.composer{background:#2f2f2f;border:1px solid #555;border-radius:26px;padding:9px 12px 9px 16px;box-shadow:none}
-.composer:focus-within{border-color:#777;box-shadow:none}
-textarea{color:#eee}
-textarea::placeholder{color:#999}
-.send{background:#eee;color:#171717;border-radius:50%;width:36px;height:36px}
-.tool-btn{color:#ccc;border-radius:50%}.tool-btn:hover{background:#444}
-.disclaimer{color:#999}
-.auth-screen{background:#212121}
-.auth-card{background:#2b2b2b;border:1px solid #484848;border-radius:18px;box-shadow:0 20px 60px #0006}
-.auth-card:before{background:#444;box-shadow:none;border-radius:50%}
-.auth-card p{color:#bbb}
-.auth-card input{background:#1f1f1f;border-color:#555}
-.auth-card input:focus{border-color:#aaa;box-shadow:none}
-.auth-card button{background:#eee;color:#171717}
-.auth-card .secondary{background:#3a3a3a;color:#eee;border-color:#555}
-@media(max-width:700px){.sidebar{background:#171717}.topbar{padding:0 14px}#chat{padding:24px 16px 12px}.composer-wrap{padding:10px 12px 18px}}
-
-/* NOVA AI: extra verktyg och tydligare gränssnitt */
-.chat-search{width:100%;padding:11px 12px;border:1px solid #3d3d3d;border-radius:10px;background:#222;color:#eee;outline:none}
-.chat-search:focus{border-color:#999}.history-row{display:flex;align-items:center;gap:4px;border-radius:9px;padding:2px}
-.history-row.active{background:#303030}.history-row .history-item{flex:1;min-width:0}
-.history-tools{display:flex;gap:2px;opacity:.55}.history-row:hover .history-tools,.history-row:focus-within .history-tools{opacity:1}
-.history-tools button{border:0;background:transparent;color:#bbb;padding:6px;border-radius:6px;font-size:13px}
-.history-tools button:hover{background:#454545;color:white}
-.history-empty{color:#888;font-size:12px;padding:10px}
-#chat{scroll-behavior:smooth}
-.message-body{overflow-wrap:anywhere}
-.composer-wrap{position:sticky;bottom:0;background:linear-gradient(180deg,transparent,#212121 18%)}
-.auth-card{backdrop-filter:blur(16px)}
-button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px solid #aaa;outline-offset:2px}
-@media(max-width:700px){.history-tools{opacity:1}.chat-search{font-size:16px}}
-
-</style>
+    :root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#212121;color:#ececec}
+    *{box-sizing:border-box}
+    body{margin:0;min-height:100vh;background:#212121}
+    button,textarea{font:inherit}
+    button{cursor:pointer}
+    .layout{display:flex;min-height:100vh}
+    .sidebar{width:260px;background:#171717;padding:14px 12px;display:flex;flex-direction:column;gap:14px;flex-shrink:0}
+    .brand{display:flex;align-items:center;gap:10px;padding:8px 9px;font-weight:700;font-size:18px}
+    .brand-mark{width:30px;height:30px;border-radius:10px;background:linear-gradient(135deg,#4d8bff,#9a59ed);display:grid;place-items:center}
+    .new-chat{background:transparent;color:#eee;border:1px solid #454545;border-radius:10px;padding:11px;text-align:left}
+    .new-chat:hover,.history-item:hover{background:#292929}
+    .history-title{font-size:12px;color:#999;padding:12px 9px 4px}
+    .history{overflow:auto;display:flex;flex-direction:column;gap:4px}
+    .history-item{background:transparent;border:0;color:#ddd;text-align:left;border-radius:8px;padding:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .side-note{margin-top:auto;color:#858585;font-size:12px;line-height:1.5;padding:9px}
+    .main{min-width:0;flex:1;display:flex;flex-direction:column;min-height:100vh}
+    .topbar{height:58px;display:flex;align-items:center;gap:12px;padding:0 22px;border-bottom:1px solid #333}
+    .mobile-brand{font-weight:650}
+    .menu{display:none;background:transparent;color:#eee;border:0;font-size:21px}
+    #chat{width:min(100%,820px);margin:0 auto;flex:1;padding:32px 24px 18px;display:flex;flex-direction:column;gap:24px}
+    .welcome{margin:auto;text-align:center;width:100%;padding:40px 0}
+    .welcome h1{font-size:clamp(27px,4vw,36px);font-weight:600;margin:0 0 26px}
+    .suggestions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:620px;margin:0 auto}
+    .suggestion{background:#2b2b2b;color:#ddd;border:1px solid #414141;border-radius:13px;padding:14px;text-align:left;line-height:1.4}
+    .suggestion:hover{background:#353535}
+    .message{display:flex;gap:12px;align-items:flex-start;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
+    .avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;font-size:14px}
+    .avatar.user{background:#555}.avatar.ai{background:linear-gradient(135deg,#4d8bff,#9a59ed)}
+    .message-body{flex:1;padding-top:3px;min-width:0}
+    .message-body p{margin:0 0 12px}
+    .message-actions{display:flex;gap:8px;margin-top:8px}
+    .small-action{background:transparent;border:0;color:#999;padding:4px 6px;border-radius:6px;font-size:12px}
+    .small-action:hover{background:#333;color:#eee}
+    .composer-wrap{width:min(100%,820px);margin:0 auto;padding:12px 24px 24px}
+    .composer{display:flex;align-items:flex-end;gap:10px;background:#2f2f2f;border:1px solid #4b4b4b;border-radius:25px;padding:10px 12px 10px 18px;box-shadow:0 8px 28px #0002}
+    .composer:focus-within{border-color:#777}
+    textarea{flex:1;resize:none;max-height:180px;min-height:28px;border:0;outline:0;background:transparent;color:#eee;padding:7px 0;line-height:1.5}
+    textarea::placeholder{color:#999}
+    .send{width:38px;height:38px;border:0;border-radius:50%;background:#eee;color:#171717;font-size:19px;font-weight:700;display:grid;place-items:center}
+    .send:disabled{opacity:.4;cursor:not-allowed}
+    .disclaimer{text-align:center;color:#888;font-size:11px;padding-top:10px}
+    .tool-btn{width:38px;height:38px;border:0;border-radius:50%;background:transparent;color:#ddd;font-size:20px;display:grid;place-items:center}
+    .tool-btn:hover{background:#444}.tool-btn.active{color:#8ab4ff}
+    .attachment{display:none;align-items:center;gap:8px;color:#bbb;font-size:12px;padding:8px 14px}
+    .attachment.show{display:flex}.attachment img{width:48px;height:48px;object-fit:cover;border-radius:8px}
+    .attachment button{background:transparent;border:0;color:#ddd}
+    .typing{color:#aaa}
+    @media(max-width:700px){.sidebar{display:none;position:fixed;z-index:5;inset:0 auto 0 0;width:280px;box-shadow:0 0 0 100vmax #0008}.sidebar.open{display:flex}.menu{display:block}.topbar{padding:0 14px}#chat{padding:24px 16px 12px}.composer-wrap{padding:10px 12px 18px}.suggestions{grid-template-columns:1fr}.welcome{padding:20px 0}.welcome h1{margin-bottom:20px}}
+  </style>
 </head>
 <body>
 <div class="layout">
   <aside class="sidebar" id="sidebar">
-    <div class="brand"><span class="brand-mark">✦</span> NOVA AI</div>
+    <div class="brand"><span class="brand-mark">✦</span> SmartAI</div>
     <button class="new-chat" id="newChat">＋　Ny chatt</button>
-    <input id="chatSearch" class="chat-search" type="search" placeholder="Sök bland chattar..." aria-label="Sök bland chattar">
     <div class="history-title">Tidigare chattar</div>
     <div class="history" id="history"></div>
-    <div class="side-note">NOVA AI kan göra misstag. Kontrollera viktig information.</div>
+    <div class="side-note">SmartAI kan göra misstag. Kontrollera viktig information.</div>
   </aside>
   <main class="main">
     <div class="topbar">
       <button class="menu" id="menu" aria-label="Öppna meny">☰</button>
-      <div class="mobile-brand">NOVA AI</div><div class="account-actions"><span class="account-email" id="accountEmail"></span><button id="logoutBtn" class="hidden" type="button">Logga ut</button></div>
+      <div class="mobile-brand">SmartAI</div>
     </div>
     <section id="chat" aria-live="polite">
       <div class="welcome" id="welcome">
@@ -152,22 +86,17 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
       <form class="composer" id="form">
         <input id="imageInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
         <button class="tool-btn" id="addImage" type="button" title="Bifoga bild">＋</button>
-        <textarea id="message" placeholder="Fråga NOVA AI" rows="1"></textarea>
+        <textarea id="message" placeholder="Fråga SmartAI" rows="1"></textarea>
         <button class="tool-btn" id="mic" type="button" title="Prata">🎙</button>
         <button class="send" id="send" type="submit" aria-label="Skicka">↑</button>
       </form>
-      <div class="disclaimer">NOVA AI använder Gemini. Skriv inte känsliga eller privata uppgifter.</div>
+      <div class="disclaimer">SmartAI använder Gemini. Skriv inte känsliga eller privata uppgifter.</div>
     </div>
   </main>
 </div>
-<div class="auth-screen" id="authScreen"><div class="auth-card"><h1>Välkommen till NOVA AI</h1><p>Skapa ett konto eller logga in för att spara dina chattar.</p><input id="authEmail" type="email" autocomplete="email" placeholder="E-post"><input id="authPassword" type="password" autocomplete="current-password" placeholder="Lösenord"><div class="auth-error" id="authError"></div><button id="loginBtn" type="button">Logga in</button><button id="signupBtn" class="secondary" type="button">Skapa konto</button></div></div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-  const SUPABASE_URL = "https://dgkjfffoutoalwisqyoz.supabase.co";
   const SUPABASE_ANON_KEY = "sb_publishable_sAIf6M6qRqQrO4YZqhgIbg_pKOuZh-6";
   const FUNCTION_URL = "https://dgkjfffoutoalwisqyoz.supabase.co/functions/v1/hyper-responder";
-  const db = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  let currentUser = null;
   const chat = document.getElementById("chat");
   const form = document.getElementById("form");
   const input = document.getElementById("message");
@@ -183,82 +112,21 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
   let activeId = null;
   let messages = [];
 
-  async function loadChatsFromAccount() {
-    if (!currentUser) return;
-    const { data, error } = await db.from("smartai_chats").select("conversation_id,title,messages").eq("user_id", currentUser.id).order("updated_at", { ascending: false });
-    if (error) throw error;
-    conversations = (data || []).map(row => ({ id: row.conversation_id, title: row.title, messages: row.messages || [] }));
+  try { conversations = JSON.parse(localStorage.getItem("smartai_chats") || "[]"); } catch { conversations = []; }
+
+  function saveChats() {
+    try { localStorage.setItem("smartai_chats", JSON.stringify(conversations)); } catch {}
     renderHistory();
-  }
-  async function saveChats() {
-    renderHistory();
-    if (!currentUser || !activeId) return;
-    const c = conversations.find(x => x.id === activeId);
-    if (!c) return;
-    const { error } = await db.from("smartai_chats").upsert({
-      user_id: currentUser.id,
-      conversation_id: c.id,
-      title: c.title || "Ny chatt",
-      messages: c.messages || [],
-      updated_at: new Date().toISOString()
-    }, { onConflict: "user_id,conversation_id" });
-    if (error) console.error("Kunde inte spara chatten:", error);
   }
   function renderHistory() {
-    const query = (document.getElementById("chatSearch")?.value || "").trim().toLowerCase();
     historyEl.innerHTML = "";
-    const visible = conversations.slice().reverse().filter(c => (c.title || "Ny chatt").toLowerCase().includes(query));
-    if (!visible.length) {
-      const empty = document.createElement("div");
-      empty.className = "history-empty";
-      empty.textContent = query ? "Inga chattar hittades." : "Dina sparade chattar visas här.";
-      historyEl.appendChild(empty);
-      return;
-    }
-    visible.forEach(c => {
-      const row = document.createElement("div");
-      row.className = "history-row" + (c.id === activeId ? " active" : "");
+    conversations.slice().reverse().forEach(c => {
       const b = document.createElement("button");
       b.className = "history-item";
       b.textContent = c.title || "Ny chatt";
-      b.title = c.title || "Ny chatt";
       b.onclick = () => loadChat(c.id);
-      const tools = document.createElement("div");
-      tools.className = "history-tools";
-      const rename = document.createElement("button");
-      rename.type = "button"; rename.textContent = "✎"; rename.title = "Byt namn";
-      rename.onclick = async () => {
-        const name = prompt("Vad ska chatten heta?", c.title || "Ny chatt");
-        if (!name || !name.trim()) return;
-        c.title = name.trim().slice(0, 60);
-        await persistConversation(c);
-        renderHistory();
-      };
-      const remove = document.createElement("button");
-      remove.type = "button"; remove.textContent = "×"; remove.title = "Radera chatt";
-      remove.onclick = async () => {
-        if (!confirm("Vill du radera chatten '" + (c.title || "Ny chatt") + "'?")) return;
-        if (currentUser) {
-          const { error } = await db.from("smartai_chats").delete().eq("user_id", currentUser.id).eq("conversation_id", c.id);
-          if (error) { alert("Kunde inte radera chatten: " + error.message); return; }
-        }
-        conversations = conversations.filter(x => x.id !== c.id);
-        if (activeId === c.id) { activeId = null; messages = []; renderChat(); }
-        renderHistory();
-      };
-      tools.append(rename, remove);
-      row.append(b, tools);
-      historyEl.appendChild(row);
+      historyEl.appendChild(b);
     });
-  }
-  async function persistConversation(c) {
-    if (!currentUser) return;
-    const { error } = await db.from("smartai_chats").upsert({
-      user_id: currentUser.id, conversation_id: c.id,
-      title: c.title || "Ny chatt", messages: c.messages || [],
-      updated_at: new Date().toISOString()
-    }, { onConflict: "user_id,conversation_id" });
-    if (error) alert("Kunde inte spara ändringen: " + error.message);
   }
   function newChat() {
     activeId = Date.now().toString();
@@ -275,15 +143,15 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
     renderChat();
     sidebar.classList.remove("open");
   }
-  async function storeChat() {
+  function storeChat() {
     if (!activeId) activeId = Date.now().toString();
-    let item = conversations.find(x => x.id === activeId);
-    if (!item) {
-      item = { id: activeId, title: messages.find(m => m.role === "user")?.text?.slice(0, 38) || "Ny chatt", messages: [] };
-      conversations.push(item);
+    let c = conversations.find(x => x.id === activeId);
+    if (!c) {
+      c = { id: activeId, title: messages.find(m => m.role === "user")?.text?.slice(0, 38) || "Ny chatt", messages: [] };
+      conversations.push(c);
     }
-    item.messages = messages;
-    await saveChats();
+    c.messages = messages;
+    saveChats();
   }
   function renderChat() {
     chat.innerHTML = "";
@@ -300,7 +168,7 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
   }
   function addMessageElement(m, index) {
     const row = document.createElement("div");
-    row.className = "message " + m.role;
+    row.className = "message";
     const avatar = document.createElement("div");
     avatar.className = "avatar " + (m.role === "user" ? "user" : "ai");
     avatar.textContent = m.role === "user" ? "Du" : "✦";
@@ -332,7 +200,6 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
   }
   document.querySelectorAll(".suggestion").forEach(b => b.addEventListener("click", () => { input.value = b.textContent; input.focus(); }));
   document.getElementById("newChat").addEventListener("click", newChat);
-  document.getElementById("chatSearch").addEventListener("input", renderHistory);
   document.getElementById("menu").addEventListener("click", () => sidebar.classList.toggle("open"));
   input.addEventListener("input", () => { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 180) + "px"; });
   input.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); } });
@@ -375,18 +242,14 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
     if ((!message && !selectedImage) || send.disabled) return;
     if (!messages.length) activeId = Date.now().toString();
     addMessage(message || "Titta på bilden.", "user");
-    await storeChat(); // Spara användarens meddelande direkt, även om AI-svaret dröjer.
     input.value = ""; input.style.height = "auto";
     send.disabled = true;
-    const waiting = addMessage("NOVA AI skriver…", "assistant");
+    const waiting = addMessage("SmartAI skriver…", "assistant");
     waiting.classList.add("typing");
     try {
       const history = messages.slice(0, -2)
-        .filter(m => (m.role === "user" || m.role === "assistant") && m.text)
-        .map(m => ({
-          role: m.role === "assistant" ? "model" : "user",
-          text: m.text
-        }));
+        .filter(m => m.role === "user" || m.role === "assistant")
+        .map(m => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.text }] }));
       const response = await fetch(FUNCTION_URL, {
         method: "POST",
         headers: {
@@ -400,14 +263,9 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
           image: selectedImage
         })
       });
-      const data = await response.json().catch(() => ({}));
-      if (!response.ok || data.error) {
-        throw new Error(data.error || "Serverfel (" + response.status + ")");
-      }
-      if (typeof data.reply !== "string" || !data.reply.trim()) {
-        throw new Error("NOVA AI skickade inget svar. Kontrollera Edge Function-loggarna i Supabase.");
-      }
-      waiting.textContent = data.reply;
+      const data = await response.json();
+      if (!response.ok) throw new Error(data.error || "Serverfel (" + response.status + ")");
+      waiting.textContent = data.reply || "SmartAI skickade inget svar.";
       waiting.classList.remove("typing");
       if ("speechSynthesis" in window) {
         const utterance = new SpeechSynthesisUtterance(waiting.textContent);
@@ -417,51 +275,14 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
       }
       selectedImage = null; imageInput.value = ""; previewImage.removeAttribute("src"); attachmentPreview.classList.remove("show");
       messages[messages.length - 1].text = waiting.textContent;
-      await storeChat(); chat.scrollTop = chat.scrollHeight;
+      storeChat(); chat.scrollTop = chat.scrollHeight;
     } catch (error) {
-      waiting.textContent = "Kunde inte nå NOVA AI: " + error.message;
+      waiting.textContent = "Kunde inte nå SmartAI: " + error.message;
       waiting.classList.remove("typing");
       messages[messages.length - 1].text = waiting.textContent;
-      await storeChat(); // Spara även felmeddelandet så att chatten finns kvar.
     } finally {
       send.disabled = false; input.focus();
     }
-  });
-  const authScreen = document.getElementById("authScreen");
-  const authError = document.getElementById("authError");
-  const authEmail = document.getElementById("authEmail");
-  const authPassword = document.getElementById("authPassword");
-  async function enterAccount(user) {
-    currentUser = user;
-    document.getElementById("accountEmail").textContent = user.email || "";
-    document.getElementById("logoutBtn").classList.remove("hidden");
-    authScreen.classList.add("hidden");
-    try { await loadChatsFromAccount(); renderChat(); }
-    catch (e) { authError.textContent = "Kunde inte läsa chattar: " + e.message; }
-  }
-  document.getElementById("loginBtn").addEventListener("click", async () => {
-    authError.textContent = "";
-    const { data, error } = await db.auth.signInWithPassword({ email: authEmail.value.trim(), password: authPassword.value });
-    if (error) { authError.textContent = error.message; return; }
-    await enterAccount(data.user);
-  });
-  document.getElementById("signupBtn").addEventListener("click", async () => {
-    authError.textContent = "";
-    const { data, error } = await db.auth.signUp({ email: authEmail.value.trim(), password: authPassword.value, options: { emailRedirectTo: location.href.split("?")[0] } });
-    if (error) { authError.textContent = error.message; return; }
-    if (data.session) await enterAccount(data.user);
-    else authError.textContent = "Kontot är skapat. Bekräfta e-posten och logga sedan in.";
-  });
-  document.getElementById("logoutBtn").addEventListener("click", async () => {
-    await db.auth.signOut();
-    currentUser = null; conversations = []; messages = []; activeId = null;
-    document.getElementById("accountEmail").textContent = "";
-    document.getElementById("logoutBtn").classList.add("hidden");
-    authScreen.classList.remove("hidden"); renderHistory(); renderChat();
-  });
-  db.auth.getSession().then(({ data, error }) => {
-    if (error) authError.textContent = error.message;
-    if (data.session?.user) enterAccount(data.session.user);
   });
   renderHistory();
   renderChat();
