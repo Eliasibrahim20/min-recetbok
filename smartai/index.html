@@ -400,9 +400,14 @@ button:focus-visible,input:focus-visible,textarea:focus-visible{outline:2px soli
           image: selectedImage
         })
       });
-      const data = await response.json();
-      if (!response.ok) throw new Error(data.error || "Serverfel (" + response.status + ")");
-      waiting.textContent = data.reply || "NOVA AI skickade inget svar.";
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data.error) {
+        throw new Error(data.error || "Serverfel (" + response.status + ")");
+      }
+      if (typeof data.reply !== "string" || !data.reply.trim()) {
+        throw new Error("NOVA AI skickade inget svar. Kontrollera Edge Function-loggarna i Supabase.");
+      }
+      waiting.textContent = data.reply;
       waiting.classList.remove("typing");
       if ("speechSynthesis" in window) {
         const utterance = new SpeechSynthesisUtterance(waiting.textContent);
