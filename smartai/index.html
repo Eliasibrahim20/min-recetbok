@@ -47,6 +47,11 @@
     .send{width:38px;height:38px;border:0;border-radius:50%;background:#eee;color:#171717;font-size:19px;font-weight:700;display:grid;place-items:center}
     .send:disabled{opacity:.4;cursor:not-allowed}
     .disclaimer{text-align:center;color:#888;font-size:11px;padding-top:10px}
+    .tool-btn{width:38px;height:38px;border:0;border-radius:50%;background:transparent;color:#ddd;font-size:20px;display:grid;place-items:center}
+    .tool-btn:hover{background:#444}.tool-btn.active{color:#8ab4ff}
+    .attachment{display:none;align-items:center;gap:8px;color:#bbb;font-size:12px;padding:8px 14px}
+    .attachment.show{display:flex}.attachment img{width:48px;height:48px;object-fit:cover;border-radius:8px}
+    .attachment button{background:transparent;border:0;color:#ddd}
     .typing{color:#aaa}
     @media(max-width:700px){.sidebar{display:none;position:fixed;z-index:5;inset:0 auto 0 0;width:280px;box-shadow:0 0 0 100vmax #0008}.sidebar.open{display:flex}.menu{display:block}.topbar{padding:0 14px}#chat{padding:24px 16px 12px}.composer-wrap{padding:10px 12px 18px}.suggestions{grid-template-columns:1fr}.welcome{padding:20px 0}.welcome h1{margin-bottom:20px}}
   </style>
@@ -77,8 +82,12 @@
       </div>
     </section>
     <div class="composer-wrap">
+      <div class="attachment" id="attachmentPreview"><img id="previewImage" alt="Vald bild"><span id="previewName"></span><button type="button" id="removeImage">✕</button></div>
       <form class="composer" id="form">
-        <textarea id="message" placeholder="Fråga SmartAI" rows="1" required></textarea>
+        <input id="imageInput" type="file" accept="image/jpeg,image/png,image/webp,image/gif" hidden>
+        <button class="tool-btn" id="addImage" type="button" title="Bifoga bild">＋</button>
+        <textarea id="message" placeholder="Fråga SmartAI" rows="1"></textarea>
+        <button class="tool-btn" id="mic" type="button" title="Prata">🎙</button>
         <button class="send" id="send" type="submit" aria-label="Skicka">↑</button>
       </form>
       <div class="disclaimer">SmartAI använder Gemini. Skriv inte känsliga eller privata uppgifter.</div>
@@ -92,6 +101,11 @@
   const form = document.getElementById("form");
   const input = document.getElementById("message");
   const send = document.getElementById("send");
+  const imageInput = document.getElementById("imageInput");
+  const attachmentPreview = document.getElementById("attachmentPreview");
+  const previewImage = document.getElementById("previewImage");
+  const previewName = document.getElementById("previewName");
+  let selectedImage = null;
   const historyEl = document.getElementById("history");
   const sidebar = document.getElementById("sidebar");
   let conversations = [];
@@ -189,18 +203,53 @@
   document.getElementById("menu").addEventListener("click", () => sidebar.classList.toggle("open"));
   input.addEventListener("input", () => { input.style.height = "auto"; input.style.height = Math.min(input.scrollHeight, 180) + "px"; });
   input.addEventListener("keydown", e => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); form.requestSubmit(); } });
+  document.getElementById("addImage").addEventListener("click", () => imageInput.click());
+  imageInput.addEventListener("change", () => {
+    const file = imageInput.files?.[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { alert("Bilden får vara högst 5 MB."); imageInput.value = ""; return; }
+    const reader = new FileReader();
+    reader.onload = () => {
+      const url = String(reader.result || "");
+      selectedImage = { mimeType: file.type, data: url.split(",")[1] || "" };
+      previewImage.src = url; previewName.textContent = file.name; attachmentPreview.classList.add("show");
+    };
+    reader.readAsDataURL(file);
+  });
+  document.getElementById("removeImage").addEventListener("click", () => {
+    selectedImage = null; imageInput.value = ""; previewImage.removeAttribute("src"); attachmentPreview.classList.remove("show");
+  });
+
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  const micButton = document.getElementById("mic");
+  micButton.addEventListener("click", () => {
+    if (!SpeechRecognition) { alert("Röstinmatning stöds inte i den här webbläsaren. Prova Chrome."); return; }
+    const recognition = new SpeechRecognition();
+    recognition.lang = "sv-SE"; recognition.interimResults = false;
+    micButton.classList.add("active");
+    recognition.onresult = e => {
+      input.value = (input.value ? input.value + " " : "") + e.results[0][0].transcript;
+      input.dispatchEvent(new Event("input")); input.focus();
+    };
+    recognition.onerror = () => alert("Kontrollera att webbläsaren får använda mikrofonen.");
+    recognition.onend = () => micButton.classList.remove("active");
+    try { recognition.start(); } catch { micButton.classList.remove("active"); }
+  });
+
   form.addEventListener("submit", async event => {
     event.preventDefault();
     const message = input.value.trim();
-    if (!message || send.disabled) return;
+    if ((!message && !selectedImage) || send.disabled) return;
     if (!messages.length) activeId = Date.now().toString();
-    addMessage(message, "user");
-    input.value = "";
-    input.style.height = "auto";
+    addMessage(message || "Titta på bilden.", "user");
+    input.value = ""; input.style.height = "auto";
     send.disabled = true;
     const waiting = addMessage("SmartAI skriver…", "assistant");
     waiting.classList.add("typing");
     try {
+      const history = messages.slice(0, -2)
+        .filter(m => m.role === "user" || m.role === "assistant")
+        .map(m => ({ role: m.role === "assistant" ? "model" : "user", parts: [{ text: m.text }] }));
       const response = await fetch(FUNCTION_URL, {
         method: "POST",
         headers: {
@@ -208,23 +257,31 @@
           "apikey": SUPABASE_ANON_KEY,
           "Authorization": "Bearer " + SUPABASE_ANON_KEY
         },
-        body: JSON.stringify({\n          message,\n          history: messages.slice(0, -1).filter(m => m.role === "user" || m.role === "assistant").map(m => ({\n            role: m.role === "assistant" ? "model" : "user",\n            parts: [{ text: m.text }]\n          }))\n        })
+        body: JSON.stringify({
+          message: message || "Beskriv bilden.",
+          history,
+          image: selectedImage
+        })
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error || "Serverfel (" + response.status + ")");
       waiting.textContent = data.reply || "SmartAI skickade inget svar.";
       waiting.classList.remove("typing");
-      const assistantMessage = messages[messages.length - 1];
-      assistantMessage.text = waiting.textContent;
-      storeChat();
-      chat.scrollTop = chat.scrollHeight;
+      if ("speechSynthesis" in window) {
+        const utterance = new SpeechSynthesisUtterance(waiting.textContent);
+        utterance.lang = "sv-SE";
+        window.speechSynthesis.cancel();
+        window.speechSynthesis.speak(utterance);
+      }
+      selectedImage = null; imageInput.value = ""; previewImage.removeAttribute("src"); attachmentPreview.classList.remove("show");
+      messages[messages.length - 1].text = waiting.textContent;
+      storeChat(); chat.scrollTop = chat.scrollHeight;
     } catch (error) {
       waiting.textContent = "Kunde inte nå SmartAI: " + error.message;
       waiting.classList.remove("typing");
       messages[messages.length - 1].text = waiting.textContent;
     } finally {
-      send.disabled = false;
-      input.focus();
+      send.disabled = false; input.focus();
     }
   });
   renderHistory();
