@@ -6,55 +6,53 @@
   <meta name="theme-color" content="#212121">
   <title>SmartAI</title>
   <style>
-    :root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:#212121;color:#ececec}
-    *{box-sizing:border-box}
-    body{margin:0;min-height:100vh;background:#212121}
-    button,textarea{font:inherit}
-    button{cursor:pointer}
-    .layout{display:flex;min-height:100vh}
-    .sidebar{width:260px;background:#171717;padding:14px 12px;display:flex;flex-direction:column;gap:14px;flex-shrink:0}
-    .brand{display:flex;align-items:center;gap:10px;padding:8px 9px;font-weight:700;font-size:18px}
-    .brand-mark{width:30px;height:30px;border-radius:10px;background:linear-gradient(135deg,#4d8bff,#9a59ed);display:grid;place-items:center}
-    .new-chat{background:transparent;color:#eee;border:1px solid #454545;border-radius:10px;padding:11px;text-align:left}
-    .new-chat:hover,.history-item:hover{background:#292929}
-    .history-title{font-size:12px;color:#999;padding:12px 9px 4px}
-    .history{overflow:auto;display:flex;flex-direction:column;gap:4px}
-    .history-item{background:transparent;border:0;color:#ddd;text-align:left;border-radius:8px;padding:9px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-    .side-note{margin-top:auto;color:#858585;font-size:12px;line-height:1.5;padding:9px}
-    .main{min-width:0;flex:1;display:flex;flex-direction:column;min-height:100vh}
-    .topbar{height:58px;display:flex;align-items:center;gap:12px;padding:0 22px;border-bottom:1px solid #333}.account-actions{margin-left:auto;display:flex;gap:8px;align-items:center}.account-actions button{border:1px solid #555;background:#303030;color:#eee;border-radius:9px;padding:8px 12px}.account-email{font-size:12px;color:#bbb}.auth-screen{position:fixed;inset:0;background:#171717;z-index:20;display:grid;place-items:center;padding:20px}.auth-card{width:min(100%,420px);background:#252525;border:1px solid #444;border-radius:18px;padding:26px}.auth-card h1{font-size:27px;margin:0 0 8px}.auth-card p{color:#aaa;line-height:1.5}.auth-card input{width:100%;padding:13px;margin:7px 0;background:#171717;border:1px solid #555;border-radius:9px;color:#fff}.auth-card button{width:100%;padding:12px;margin-top:9px;border:0;border-radius:9px;background:#eee;color:#171717;font-weight:700}.auth-card .secondary{background:transparent;color:#ddd;border:1px solid #555}.auth-error{color:#ff9b9b;font-size:13px;min-height:18px}.hidden{display:none!important}
-    .mobile-brand{font-weight:650}
-    .menu{display:none;background:transparent;color:#eee;border:0;font-size:21px}
-    #chat{width:min(100%,820px);margin:0 auto;flex:1;padding:32px 24px 18px;display:flex;flex-direction:column;gap:24px}
-    .welcome{margin:auto;text-align:center;width:100%;padding:40px 0}
-    .welcome h1{font-size:clamp(27px,4vw,36px);font-weight:600;margin:0 0 26px}
-    .suggestions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px;max-width:620px;margin:0 auto}
-    .suggestion{background:#2b2b2b;color:#ddd;border:1px solid #414141;border-radius:13px;padding:14px;text-align:left;line-height:1.4}
-    .suggestion:hover{background:#353535}
-    .message{display:flex;gap:12px;align-items:flex-start;line-height:1.65;white-space:pre-wrap;overflow-wrap:anywhere}
-    .avatar{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex-shrink:0;font-size:14px}
-    .avatar.user{background:#555}.avatar.ai{background:linear-gradient(135deg,#4d8bff,#9a59ed)}
-    .message-body{flex:1;padding-top:3px;min-width:0}
-    .message-body p{margin:0 0 12px}
-    .message-actions{display:flex;gap:8px;margin-top:8px}
-    .small-action{background:transparent;border:0;color:#999;padding:4px 6px;border-radius:6px;font-size:12px}
-    .small-action:hover{background:#333;color:#eee}
-    .composer-wrap{width:min(100%,820px);margin:0 auto;padding:12px 24px 24px}
-    .composer{display:flex;align-items:flex-end;gap:10px;background:#2f2f2f;border:1px solid #4b4b4b;border-radius:25px;padding:10px 12px 10px 18px;box-shadow:0 8px 28px #0002}
-    .composer:focus-within{border-color:#777}
-    textarea{flex:1;resize:none;max-height:180px;min-height:28px;border:0;outline:0;background:transparent;color:#eee;padding:7px 0;line-height:1.5}
-    textarea::placeholder{color:#999}
-    .send{width:38px;height:38px;border:0;border-radius:50%;background:#eee;color:#171717;font-size:19px;font-weight:700;display:grid;place-items:center}
-    .send:disabled{opacity:.4;cursor:not-allowed}
-    .disclaimer{text-align:center;color:#888;font-size:11px;padding-top:10px}
-    .tool-btn{width:38px;height:38px;border:0;border-radius:50%;background:transparent;color:#ddd;font-size:20px;display:grid;place-items:center}
-    .tool-btn:hover{background:#444}.tool-btn.active{color:#8ab4ff}
-    .attachment{display:none;align-items:center;gap:8px;color:#bbb;font-size:12px;padding:8px 14px}
-    .attachment.show{display:flex}.attachment img{width:48px;height:48px;object-fit:cover;border-radius:8px}
-    .attachment button{background:transparent;border:0;color:#ddd}
-    .typing{color:#aaa}
-    @media(max-width:700px){.sidebar{display:none;position:fixed;z-index:5;inset:0 auto 0 0;width:280px;box-shadow:0 0 0 100vmax #0008}.sidebar.open{display:flex}.menu{display:block}.topbar{padding:0 14px}#chat{padding:24px 16px 12px}.composer-wrap{padding:10px 12px 18px}.suggestions{grid-template-columns:1fr}.welcome{padding:20px 0}.welcome h1{margin-bottom:20px}}
-  </style>
+:root{color-scheme:dark;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif;background:#10131d;color:#eef1fa}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 65% -15%,#29365b 0,transparent 48%),#10131d}
+button,textarea,input{font:inherit}button{cursor:pointer}.layout{display:flex;min-height:100vh}
+.sidebar{width:278px;background:rgba(13,17,29,.94);border-right:1px solid #293148;padding:20px 15px;display:flex;flex-direction:column;gap:15px;flex-shrink:0}
+.brand{display:flex;align-items:center;gap:12px;padding:8px 10px;font-weight:750;font-size:19px;letter-spacing:.2px}
+.brand-mark{width:36px;height:36px;border-radius:12px;background:linear-gradient(135deg,#7c6cff,#35c9d8);display:grid;place-items:center;box-shadow:0 6px 22px #655bff55}
+.new-chat{background:linear-gradient(110deg,#655cf2,#438cdb);color:white;border:0;border-radius:12px;padding:13px;text-align:left;font-weight:650;box-shadow:0 7px 20px #554fe333;transition:.2s}
+.new-chat:hover{filter:brightness(1.12);transform:translateY(-1px)}
+.history-title{font-size:11px;color:#8290ad;padding:13px 9px 4px;text-transform:uppercase;letter-spacing:1.2px}
+.history{overflow:auto;display:flex;flex-direction:column;gap:5px}
+.history-item{background:transparent;border:0;color:#c8d0e4;text-align:left;border-radius:9px;padding:10px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.history-item:hover{background:#222b40}.side-note{margin-top:auto;color:#77829b;font-size:12px;line-height:1.6;padding:10px}
+.main{min-width:0;flex:1;display:flex;flex-direction:column;min-height:100vh}
+.topbar{height:66px;display:flex;align-items:center;gap:12px;padding:0 28px;border-bottom:1px solid #283148;background:#111725aa;backdrop-filter:blur(12px)}
+.account-actions{margin-left:auto;display:flex;gap:10px;align-items:center}.account-actions button{border:1px solid #394663;background:#202a40;color:#e7ecfa;border-radius:10px;padding:9px 13px}.account-actions button:hover{background:#2b3853}.account-email{font-size:12px;color:#aebbd5}
+.auth-screen{position:fixed;inset:0;background:radial-gradient(ellipse at 50% 15%,#2b3862 0,transparent 55%),#0e1220;z-index:20;display:grid;place-items:center;padding:20px}
+.auth-card{width:min(100%,430px);background:linear-gradient(145deg,#1e2940,#171e30);border:1px solid #3b4968;border-radius:24px;padding:34px;box-shadow:0 24px 80px #0008}
+.auth-card:before{content:"✦";display:grid;place-items:center;width:54px;height:54px;margin:0 auto 18px;border-radius:17px;background:linear-gradient(135deg,#7c6cff,#35c9d8);font-size:26px;box-shadow:0 8px 25px #655bff55}
+.auth-card h1{font-size:27px;text-align:center;margin:0 0 8px;letter-spacing:-.6px}.auth-card p{color:#aeb9d0;line-height:1.55;text-align:center;margin:0 0 20px}
+.auth-card input{width:100%;padding:14px 15px;margin:7px 0;background:#111827;border:1px solid #3a4762;border-radius:11px;color:#fff;outline:none}
+.auth-card input:focus{border-color:#8a83ff;box-shadow:0 0 0 3px #8177ff25}
+.auth-card button{width:100%;padding:13px;margin-top:11px;border:0;border-radius:11px;background:linear-gradient(110deg,#7166f6,#398fdc);color:white;font-weight:700;transition:.2s}
+.auth-card button:hover{filter:brightness(1.12)}.auth-card .secondary{background:#242f47;color:#dce4f6;border:1px solid #3b4968}
+.auth-error{color:#ffaaaa;font-size:13px;min-height:19px;margin-top:6px}.hidden{display:none!important}
+.mobile-brand{font-weight:750;letter-spacing:.2px}.menu{display:none;background:transparent;color:#eee;border:0;font-size:21px}
+#chat{width:min(100%,900px);margin:0 auto;flex:1;padding:42px 30px 20px;display:flex;flex-direction:column;gap:25px}
+.welcome{margin:auto;text-align:center;width:100%;padding:45px 0}.welcome h1{font-size:clamp(29px,4vw,42px);font-weight:750;letter-spacing:-1.2px;margin:0 0 32px;background:linear-gradient(90deg,#fff,#aebaff,#8be4ed);background-clip:text;color:transparent}
+.suggestions{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;max-width:680px;margin:0 auto}
+.suggestion{background:#1b2437;color:#dce5f8;border:1px solid #34425f;border-radius:15px;padding:17px;text-align:left;line-height:1.45;transition:.2s}
+.suggestion:hover{background:#25324c;border-color:#7775e9;transform:translateY(-2px)}
+.message{display:flex;gap:13px;align-items:flex-start;line-height:1.7;white-space:pre-wrap;overflow-wrap:anywhere}
+.avatar{width:34px;height:34px;border-radius:12px;display:grid;place-items:center;flex-shrink:0;font-size:13px;font-weight:700}
+.avatar.user{background:#34415c}.avatar.ai{background:linear-gradient(135deg,#7166f6,#35b9d0)}
+.message-body{flex:1;padding-top:3px;min-width:0}.message-actions{display:flex;gap:8px;margin-top:8px}
+.small-action{background:transparent;border:0;color:#95a2bd;padding:5px 8px;border-radius:7px;font-size:12px}.small-action:hover{background:#27334b;color:#fff}
+.composer-wrap{width:min(100%,900px);margin:0 auto;padding:12px 30px 26px}
+.composer{display:flex;align-items:flex-end;gap:10px;background:#1c2639;border:1px solid #3b4964;border-radius:20px;padding:10px 12px 10px 17px;box-shadow:0 12px 38px #0004}
+.composer:focus-within{border-color:#7775e9;box-shadow:0 0 0 3px #7775e91c}
+textarea{flex:1;resize:none;max-height:180px;min-height:28px;border:0;outline:0;background:transparent;color:#f1f4fc;padding:7px 0;line-height:1.5}
+textarea::placeholder{color:#8d9ab4}.send{width:39px;height:39px;border:0;border-radius:13px;background:linear-gradient(135deg,#7a6bff,#43a9d8);color:white;font-size:19px;font-weight:700;display:grid;place-items:center}
+.send:disabled{opacity:.4;cursor:not-allowed}.disclaimer{text-align:center;color:#7886a2;font-size:11px;padding-top:11px}
+.tool-btn{width:38px;height:38px;border:0;border-radius:11px;background:transparent;color:#b8c4dc;font-size:20px;display:grid;place-items:center}
+.tool-btn:hover{background:#2b3851}.tool-btn.active{color:#8ab4ff}
+.attachment{display:none;align-items:center;gap:8px;color:#bbc7df;font-size:12px;padding:8px 14px}.attachment.show{display:flex}.attachment img{width:48px;height:48px;object-fit:cover;border-radius:8px}.attachment button{background:transparent;border:0;color:#ddd}
+.typing{color:#a7b5d0}
+@media(max-width:700px){.sidebar{display:none;position:fixed;z-index:5;inset:0 auto 0 0;width:280px;box-shadow:0 0 0 100vmax #0008}.sidebar.open{display:flex}.menu{display:block}.topbar{padding:0 14px}#chat{padding:24px 16px 12px}.composer-wrap{padding:10px 12px 18px}.suggestions{grid-template-columns:1fr}.welcome{padding:20px 0}.welcome h1{margin-bottom:22px}.auth-card{padding:27px 22px}}
+</style>
 </head>
 <body>
 <div class="layout">
